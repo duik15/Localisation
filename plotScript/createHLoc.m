@@ -7,6 +7,17 @@ theta = 0;  % Off-set from true north
 nbH = 10;   % Number of hydrohpone
 r = 10;     % radius of the array
 
+%% Input argument
+while ~isempty(varargin)
+        switch lower(varargin{1})
+            case 'theta'
+                theta = varargin{2};
+            otherwise
+                error('Can''t understand property in convLoc.m')
+        end
+        varargin(1:2)=[];
+end
+
 %% Create new loc
 hLoc = nan(nbH,2);
 

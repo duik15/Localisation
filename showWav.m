@@ -1,7 +1,8 @@
 function showWav(Y,Fs,varargin)
+% showWav(Y,Fs)
+% showWav(Y,Fs,'time', 120, 'duration',20,'chanel',[1 2 3],'tPos',1,'printFig', true)
 disp('< -- Automatic wav plot -- >')
-
-
+ok=1
 % Default Parameters
 showFig = [1];   % Plot ID, can be an array for mutiple plot
 moreInfo = '';  % Add info when saving XX_moreInfo.png
@@ -14,12 +15,13 @@ printFig = false;
 
 %% Varagin
 while ~isempty(varargin)
-    lower(varargin{1})
         switch lower(varargin{1})
             case 'time'
                 time = varargin{2};
             case 'showfig'
-                showFig = varargin{2};            
+                showFig = varargin{2}; 
+            case 'chanel'
+                chanel = varargin{2};
             case 'moreinfo'
                 moreInfo = varargin{2}; 
             case 'duration'
@@ -28,7 +30,7 @@ while ~isempty(varargin)
                 CLimit = varargin{2};
             case 'fs'
                 Fs = varargin{2};
-            case 'tPos'
+            case 'tpos'
                 tPos = varargin{2};
             case 'resolution'
                 resolution = varargin{2};
@@ -39,7 +41,6 @@ while ~isempty(varargin)
         end
             varargin(1:2)=[];
 end
-
 %% Automatic parameter
 sY = size(Y);
 if any(chanel > sY(2))
@@ -51,7 +52,7 @@ Y1 = Y(:,chanel(1));
    
 % Setting the leght of the time axis
 if ~exist('dura')
-   dura  = length(Y)/Fs; 
+   dura  = length(Y1)/Fs; 
 end
 
  % Loading the time iteration
@@ -88,7 +89,7 @@ ax.XTickLabel = ax.XTick /Fs;
 ylabel('Amplitude')
 xlabel('Time (s)')
 
-if printFig = true
+if printFig == true
     print('-dpng','-r150',['showWav' moreInfo  '.png']);
 end
 end

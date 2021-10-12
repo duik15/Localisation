@@ -1,62 +1,59 @@
+function [angleM, matEnergie] = locateSound(arrID, ptime, varargin)
 % This script run beamforming over some ping emission to find back the array. 
-% 
-% It use a folderIn location and an array of time to read
-% Time to process might be specifiy by ptime = [datetime(xxx),datetime(xxx)]
-% or by a get function [ploc, ptime ]  = getPingLoc('aav');
+% [maxAngleArrival, energieMat] = locateSound('aav',datetime(2021,07,15,18,10,58,'showFig',[1:3])
+% Possible input parameter:
 %
+% outname   -> name to save folder and figure
+% moreInfo  -> String add to output name in a automated name generation               
+% folderin  -> Folder containing the wav group
+% folderout -> Folder where the figure are print
+% showfig   -> Number of the figure to plot. See showFigBring.m
+% ns        -> Number of sample -> Duration of the audio to open. Must be power of 2.
+% buffer    -> Second to add before the time asked
+% fmin      -> Minimal frequency
+% fmax      -> Maximal frequency
+%   
 % The figure to plot can be specify by the argument showFig = [1 3 4..]
 % Figure code and description are located in showFigBring.m
 %
 % last update 7/10/2021 by @kevDuquette
 
-clear all
-close all
+
 
 % --------------- Parameters to set by user -----------------
-% Configuration parameters are open if not empty
-configParameter = 'aavCircle'; % Set to empty to use parameters speficified in script
-configFolder = ['config/'];
+% Path information : folderIn = wav folder / folderOut = figure output folder 
+% arrID = AAV / CLD / MLB / PRC || outName = name of the output folder and figures
+folderIn = ['~/Documents/MPO/BRing/Data/wav/' arrID '/']; % Local Mac folder
+%folderIn = ['Z:\DATA\missions\2021-07-27_IML_2021-016_BRings\wav\' arrID '\'];
 
-if ~isempty(configParameter)
-    try
-    disp(['Loading presaved configuration parameter: ' configParameter])
-    cd(configFolder)
-    run(configParameter)
-    cd('../')
-    catch
-        disp('Can''t load presaved parameter')
-    end
-    %load([configFolder configParameter '.m'])
-else
-    % Path information : folderIn = wav folder / folderOut = figure output folder
-    % arrID = AAV / CLD / MLB / PRC || outName = name of the output folder and figures
-    arrID = 'MLB';
-    outName = 'test_OffSet23_voc3_Ns2e14_150-200hz_AvCircle';
-    folderIn = ['~/Documents/MPO/BRing/Data/wav/' arrID '/']; % Local Mac folder
-    folderOut = ['/Users/Administrator/Documents/MPO/BRing/Data/results/' arrID '/' outName '/'];    
-    %folderIn = ['Z:\DATA\missions\2021-07-27_IML_2021-016_BRings\wav\' arrID '\'];
-    
-    % Loading files and time
-    % Time must be in datetime format. The file to load will be automatically find
-    [ptime, ploc]  = getPingInfo(arrID); % Load ping information
-    ptime = ptime + seconds(7);          % Add an offset to be center the 5 upcalls
-    
-    % Figure parameters
-    showFig = [3]       % Figure number to print
-    saveData = false;   % Save result to .mat
-    printFig = true;    % Saving figure to a folder
-    nbPk = 4 ;          % Nomber of side lobe to keep
-    
-    % Reading parameters
-    Ns = 2^14;              % Total number of sample
-    buffer = 0.4;             % Time in second
-    
-    
-    % Spectro parameter
-    % Frequence min and max
-    fmin_int = 150;
-    fmax_int = 200;
+% Loading files and time
+% Time must be in datetime format. The file to load will be automatically find
+
+
+% Figure parameters
+showFig = [3];       % Figure number to print
+saveData = false;   % Save result to .mat
+printFig = true;    % Saving figure to a folder
+nbPk = 4 ;          % Nomber of side lobe to keep
+
+% Reading parameters
+Ns = 2^14;              % Total number of sample
+buffer = 0.4;             % Time in second
+
+% Spectro parameter
+% Frequence min and max
+fmin_int = 150;
+fmax_int = 200;
+
+% Check if any parameter are given in input
+locateInput;
+
+if ~exist('outName')
+    outName = [arrID '_Ns' num2str(Ns) '_fmin' num2str(fmin_int) '-fmax' num2str(fmax_int) 'hz' ];
 end
+
+folderOut = ['/Users/Administrator/Documents/MPO/BRing/Data/results/' arrID '/' outName '/'];
+%folderOut = ['Z:\DATA\missions\2021-07-27_IML_2021-016_BRings\results\' arrID '\'];
 
 % -------------- Fixed variables --------------------
 
@@ -108,7 +105,6 @@ elseif strcmp(arrOri,'counter')
     yc = R*sin(theta +  offset* pi /180);
 end
 
-
 % Creating the output folder
 if ~isfolder(folderOut); disp(['Creating output folder: ' folderOut]); mkdir(folderOut); end
 
@@ -118,10 +114,10 @@ if ~isfolder(folderOut); disp(['Creating output folder: ' folderOut]); mkdir(fol
 matEnergie = nan(nbF,360);
 angleA = nan(nbF,nbPk);
 
-for iFile =1:length(fileList)
+for iFile =1:1%length(fileList)
     disp(['Executing beamforming for file ' num2str(iFile) '/' num2str(length(fileList))])
     close all
-    
+
     
     % Reading wav
     [MAT_s,fe, tstart, dura] = readBring([folderIn fileList{iFile}], ptime(iFile),'duration',duraNs,'buffer',buffer,'power2',true);
@@ -172,7 +168,7 @@ for iFile =1:length(fileList)
         end
     end
     
-    
+   
     % Goniométrie -------------------> Figure 2,3
     Energie = [];
     for u = 1 : length(vec_azimut)
@@ -205,15 +201,10 @@ for iFile =1:length(fileList)
     
 end % end loop on file
 
-% Show global figure
-showGlobalFig;
-
 
 % Saving data
 if saveData == true
-    if exist('angleR')
-        save([folderOut 'dataAngleOfArrival_' outName '.mat'],'angleA','angleM','angleR','ptime','ploc','matEnergie')
-    else
-        save([folderOut 'dataAngleOfArrival_' outName '.mat'],'angleA','angleM','ptime','ploc','matEnergie')
-    end
+save([folderOut 'dataAngleOfArrival_' outName '.mat'],'angleA','angleM','ptime','ploc','matEnergie')
+end
+
 end
