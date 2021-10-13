@@ -30,4 +30,31 @@ xlabel('Time')
 
 leg = legend('Real angle','First lobe','Second lobe','Third lobe','Located ping');
 print('-dpng','-r150',[folderOut 'angleTime_' outName '.png' ])
+
+end
+
+if any(showFig==11)
+% pcolormap of the matrice energie
+figure(2)
+
+ax=gca;
+pcolor(ptime, 1:360, 10*log10(matEnergie'))
+shading flat
+cb = colorbar('location','eastoutside');
+ylabel(cb, 'Energy (dB)');
+
+
+if exist('p')
+    hold on
+hpm = plot(p.ptime,p.angleM,'o','color','r','markersize',5,'markerfacecolor','r');
+end
+
+% Axes paremeter
+ylabel('Azimute $^{\circ}$','interpreter','latex')
+xlabel('Time')
+
+leg = legend(hpm,'Ping azimut');
+%leg.Box ='off';
+
+print('-dpng','-r150',[folderOut 'pcolorAngleTime_' outName '.png' ])
 end
