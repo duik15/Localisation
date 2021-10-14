@@ -15,8 +15,6 @@
 % 
 % Other parameter can be set in this script.
 %
-% Data in you folder should be  
-%
 % Last update 14/10/21 by @kevDuquette
 
 clear all
@@ -30,7 +28,7 @@ openData = false;
 
 % Path information : folderIn = wav folder / folderOut = figure output folder
 arrID = 'AAV';
-outName = 'defaultConfig';
+outName = 'test_defaultConfig';
 folderIn = ['~/Documents/MPO/BRing/Data/wav/' arrID '/']; % Local Mac folder
 folderOut = ['/Users/Administrator/Documents/MPO/BRing/Data/results/' arrID '/' outName '/'];
 %pingFolder = ['/Users/Administrator/Documents/MPO/BRing/Data/results/' arrID '/prcCircle_Ns14_f150-200hz/'];
@@ -42,6 +40,7 @@ folderOut = ['/Users/Administrator/Documents/MPO/BRing/Data/results/' arrID '/' 
 %ptime = datetime(2021,07,15,00,00,00):seconds(5):datetime(2021,07,15,01,00,00);
 [ptime, ploc]  = getPingInfo(arrID); % Load ping information
 ptime = ptime + seconds(7);          % Add an offset to be center the 5 upcalls
+ptime = ptime(1:2);
 
 
 % Figure parameters
@@ -69,15 +68,13 @@ if openData == true
     p = getRunData(pingFolder);
     %unpackStruct(p);  % Unpack structure to get same workspace as locateBring
 else
-    locateBring; % The main loop calculation are locate in this script
+    % The main loop calculation are locate in this script
+    locateBring; 
     
     % Add some figure script located in ../plotScript
-    
-    showAOACircle; 
+    %showAOACircle; 
     
 end
 
 
-%% Add some more specified line or figures related to you run
-% Enjoy!
 

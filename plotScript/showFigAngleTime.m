@@ -28,7 +28,7 @@ end
 ylabel('Angle of arrival')
 xlabel('Time')
 
-leg = legend('Real angle','First lobe','Second lobe','Third lobe','Located ping');
+leg = legend('Real angle','First lobe','Second lobe','Third lobe','Located ping','Location','northwest');
 print('-dpng','-r150',[folderOut 'angleTime_' outName '.png' ])
 
 end
@@ -42,15 +42,24 @@ pcolor(ptime, 1:360, 10*log10(matEnergie'))
 shading flat
 cb = colorbar('location','eastoutside');
 ylabel(cb, 'Energy (dB)');
-
+colormap jet
 
 if exist('p')
-hpm = plot(p.ptime,p.angleM,'p','color','r','markersize',20,'markerfacecolor','r');
+hold on
+hpm = plot(p.ptime,p.angleM,'p','color','r','markersize',15,'markerfacecolor','r');
+end
+if exist('b')
+hold on
+hbr = plot(b.ptime,b.angleR,'o','color','k','markersize',5,'markerfacecolor','k');
+hbm = plot(b.ptime,b.angleM,'o','color','b','markersize',5,'markerfacecolor','b');
 end
 
 % Axes paremeter
-ylabel('Azimute $^{\circ}$','interpreter','latex')
+ylabel('Azimut $^{\circ}$','interpreter','latex')
 xlabel('Time')
+
+leg = legend([hpm hbr hbm],'Ping azimut','Real boat azimut','Boat azimut');
+%leg.Box ='off';
 
 print('-dpng','-r150',[folderOut 'pcolorAngleTime_' outName '.png' ])
 end

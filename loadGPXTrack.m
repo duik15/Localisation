@@ -25,17 +25,17 @@ switch lower(gID)
         istart    = 1600;
         iend      = 1900;
     case 'cld'
-        file2load = '/Users/Administrator/Documents/MPO/BRing/Data/boatTrack/cldTrack.gpx';
-        istart    = 1475;
-        iend      = 1950;
+        file2load = '/Users/Administrator/Documents/MPO/BRing/Data/boatTrack/cldCircleTrack.gpx';
+        istart    = 1;
+        iend      = 300;
     case 'mlb'
         file2load = '/Users/Administrator/Documents/MPO/BRing/Data/boatTrack/mlbPrcTrack.gpx';
         istart    = 110;
         iend      = 1350;
     case 'prc'
         file2load = '/Users/Administrator/Documents/MPO/BRing/Data/boatTrack/mlbPrcTrack.gpx';
-        istart    = 200;
-        iend      = 450;
+        istart    = 650;
+        iend      = 850;
         
     case 'file'
         file2load = varargin{1};

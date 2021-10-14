@@ -1,6 +1,6 @@
-function [angleM, matEnergie] = locateSound(arrID, ptime, varargin)
+function [angleM, matEnergie] = locateFun(arrID, ptime, varargin)
 % This script run beamforming over some ping emission to find back the array. 
-% [maxAngleArrival, energieMat] = locateSound('aav',datetime(2021,07,15,18,10,58,'showFig',[1:3])
+% [maxAngleArrival, energieMat] = locateFun('aav',datetime(2021,07,15,18,10,58,'showFig',[1:3])
 % Possible input parameter:
 %
 % outname   -> name to save folder and figure

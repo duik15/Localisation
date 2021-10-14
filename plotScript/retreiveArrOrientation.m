@@ -5,15 +5,19 @@ close all
 %repertoire des fonctions m_map
 %repmap = 'T:\Utilitaires\Matlab_tools\m_map2020\m_map\';
 %addpath(genpath(repmap))
-outName = getOutName('retreive')
-moreInfo = 'av_reverse';
-
-% Parameter
-locID = 'av';
+% Path information : folderIn = wav folder / folderOut = figure output folder
+    % arrID = AAV / CLD / MLB / PRC || outName = name of the output folder and figures
+arrID = 'AAV';
+outName = 'aavCircle_7sec_Ns16_f150-200hz';
+folderOut = ['/Users/Administrator/Documents/MPO/BRing/Data/results/' arrID '/' outName '/'];    
+pingFolder = ['/Users/Administrator/Documents/MPO/BRing/Data/results/' arrID '/' outName '/'];
+boatFolder = ['/Users/Administrator/Documents/MPO/BRing/Data/results/' arrID '/' lower(arrID) 'CircleBoat_Ns14_f150-200hz/'];
+  
 
 % Loadign data
-[ploc, ptime] = getPingLoc(['c' locID]);
-aloc = getArrLoc(locID);
+[ptime, ploc] = getPingInfo([arrID]);
+[aloc aoff arrOri]= getArrLoc(arrID);
+%angleR = getRealAngle(arrID, ploc(:,1),ploc(:,2));
 nbP = length(ploc);
 
 % Read bathymetry
@@ -21,8 +25,10 @@ load ~/Documents/MATLAB/Oceanographie/m_map/mmap_ex/GSL_bathy_500m.mat;
 load ~/Documents/MATLAB/Oceanographie/m_map/mmap_ex/gebco_colormap.dat;
 
 % Load data
-load '/Users/Administrator/Documents/MPO/BRing/Data/results/AV/realOrder_OffSet23_voc3_Ns2e14_AvCircle/locateBRING_Data_realOrder_OffSet23_voc3_Ns2e14_AvCircle.mat'
-apa = aMax -90;
+disp('Opening already run data')
+p = getRunData(pingFolder);
+b = getRunData(boatFolder);
+%unpackStrcut(b);
 
 if ~isfolder(outName); disp(['Creating output folder: ' outName]); mkdir(outName); end
 %% Create fake data
@@ -36,7 +42,7 @@ if ~isfolder(outName); disp(['Creating output folder: ' outName]); mkdir(outName
 %% Figure 1
 close all
 % Zone de la carte
-winSize = 0.02;
+winSize = 0.015;
 %winSize = 0.15;
 lon_min = -aloc(2) - winSize ;
 lon_max = -aloc(2) + winSize;
@@ -79,39 +85,57 @@ m_gshhs_l('patch',[.7 .7 .7]); % coastlines
 
 
 % Hydrophone location
-hh = m_plot(-aloc(2),aloc(1),'+','MarkerSize',14);
-%m_text(-aloc(2) + 0.01 ,aloc(1) + 0.01,nameStat{1},'FontSize', 14);
-
+hc = m_plot(-aloc(2),aloc(1),'+','MarkerSize',14);
 
 % Circular ping
-for i=1:length(ploc)
-hp1=   m_plot(-ploc(i,2),ploc(i,1),'o','MarkerEdgeColor','k',...
+for i=1:length(p.ploc)
+hp1=   m_plot(p.ploc(i,2),p.ploc(i,1),'o','MarkerEdgeColor','k',...
     'MarkerFaceColor','green','MarkerSize',4) ;
 %m_text(-ploc(i,2) + 0.0001 ,ploc(i,1) + 0.0001 ,num2str(i),'FontSize', 14);
-m_text(-ploc(i,2) + 0.0001 ,ploc(i,1) + 0.0001 ,num2str(apa(i)+180) ,'FontSize', 14);
+%m_text(-p.ploc(i,2) + 0.0001 ,p.ploc(i,1) + 0.0001 ,num2str(p.angleM()) ,'FontSize', 14);
 end
 
-% Now lets find our location
-apa2 = apa -180;
-% Circular ping
-for i=1:length(ploc)
-%i=1;
 
+% Now lets find our location
+apa = p.angleM + 180;
+% Circular ping
+for i=1:length(p.ploc)
 % Calculate the orietation line
-[lonin,latin, phi] = m_fdist(ploc(i,2),ploc(i,1), apa(i) +180, 700);
-[loninc(i),latinc(i), phi] = m_fdist(ploc(i,2),ploc(i,1), apa(i)+180, 500);
+[lonin,latin, phi] = m_fdist(p.ploc(i,2),p.ploc(i,1), 360- apa(i), 700);
+[loninc(i),latinc(i), phi] = m_fdist(ploc(i,2),ploc(i,1), 360 - ( apa(i)+180), 500);
 %hl = m_plot(-[ploc(i,2) lonin], [ploc(i,1) latin],'-.k');
-hl = m_plot(-[ploc(i,2) lonin], [ploc(i,1) latin],'-.k');
+hl = m_plot([ploc(i,2) lonin], [ploc(i,1) latin],'-.k');
 %m_text(-ploc(i,2) + 0.0001 ,ploc(i,1) + 0.0001 ,num2str(i),'FontSize', 14);
+end
+
+
+if exist('b')
+%Now lets find our location
+apab = b.angleM + 180;
+% Circular ping
+for i=1:length(b.ploc)
+% Calculate the orietation line
+[loninb,latinb, phib] = m_fdist(-b.ploc(i,2),b.ploc(i,1), 360- apab(i), 700);
+[lonincb(i),latincb(i), phibb] = m_fdist(-b.ploc(i,2),b.ploc(i,1), 360 - ( apab(i)+180), 500);
+end
 end
 
 %hh = m_plot(-mean(ploc(:,2)),mean(ploc(:,1)),'x','MarkerSize',14);
-hc = m_plot(-mean(loninc),mean(latinc),'xr','MarkerSize',14);
+hc2 = m_plot(mean(loninc),mean(latinc),'xr','MarkerSize',14);
+%hb = m_plot(mean(lonincb),mean(latincb),'xg','MarkerSize',14);
 
+ 
+% Print legend location
+hct = m_plot(-aloc(2)- 0.013,aloc(1) + 0.006,'+','MarkerSize',14,'Color',hc.Color);
+m_text(-aloc(2)- 0.012,aloc(1) + 0.006,[num2str(aloc(1)) ' N, ' num2str(aloc(2)) ' W'],'FontSize', 14);
+hct2 = m_plot(-aloc(2)- 0.013,aloc(1) + 0.005,'x','MarkerSize',14,'Color',hc2.Color);
+m_text(-aloc(2)- 0.012,aloc(1) + 0.005,[num2str(mean(latinc)) ' N, ' num2str(mean(loninc)) ' W'],'FontSize', 14);
+
+ 
 % Legend
-leg = m_legend([hh,hp1,hc], 'Circular Array','500m Ring','Retreived center')
+leg = m_legend([hc,hp1,hc2], 'Circular Array','500m Ring','Retreived center')
 %leg.Position = [49,-64,10,4]
 leg.Position = [49,5,25,3]
-%%
-print('-dpng', '-r300',[outName 'crossLineCircle' moreInfo '.png']);    
+
+print('-dpng', '-r300',[folderOut outName 'crossLineCircle.png']);    
 

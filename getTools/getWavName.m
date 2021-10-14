@@ -41,9 +41,14 @@ for i=1:nbF
 end
 
 %Find the file
+
+if ~exist('dateT')
+    error('Couln''t find any wav file corresponding.')
+end
+
 for i=1:length(dateIn)
     
-% Check if need to load another file    
+% Check if need to load another file 
 bolTime =  dateT >= dateIn(i);
 
 if any(bolTime) == 1
@@ -51,7 +56,7 @@ if any(bolTime) == 1
 elseif dateT(end) + minutes(4.99) >  dateIn(i)
     iFile(i) = length(dateT);
 else
-    eror('Couldnt load the file!')
+    error('Couldnt load the file!')
 end
 
 % Check is file actually exist
