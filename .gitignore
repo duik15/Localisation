@@ -1,0 +1,5 @@
+# See url for information to ignore folder and files
+# https://www.atlassian.com/fr/git/tutorials/saving-changes/gitignore#git-ignore-patterns
+# 
+# Ignore all archives
+/archives
