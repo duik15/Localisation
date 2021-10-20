@@ -18,22 +18,34 @@ showFig = 0;
 printFig = [];
 saveTrack = true;
 
+% Get the path to data
+compName = getMachine();
+
+switch lower(compName)
+    case 'mac'
+        path2track = '/Users/Administrator/Documents/MPO/BRing/Data/boatTrack/';
+    case 'dellkev'
+        path2track = 'C:\Users\duquettek\Documents\BRing\Data\boatTrack\';
+    otherwise
+        warning('Path to boat track is not fund. Please make sure to specify the path in the varagin option or add your computer to the list.')
+end
+
 %%
 switch lower(gID)
     case 'aav'
-        file2load = '/Users/Administrator/Documents/MPO/BRing/Data/boatTrack/aavCircle.gpx';
+        fileName = 'aavCircle.gpx';
         istart    = 1600;
         iend      = 1900;
     case 'cld'
-        file2load = '/Users/Administrator/Documents/MPO/BRing/Data/boatTrack/cldCircleTrack.gpx';
+        fileName = 'cldCircleTrack.gpx';
         istart    = 1;
         iend      = 300;
     case 'mlb'
-        file2load = '/Users/Administrator/Documents/MPO/BRing/Data/boatTrack/mlbPrcTrack.gpx';
+        fileName = 'mlbPrcTrack.gpx';
         istart    = 110;
         iend      = 1350;
     case 'prc'
-        file2load = '/Users/Administrator/Documents/MPO/BRing/Data/boatTrack/mlbPrcTrack.gpx';
+        fileName= 'mlbPrcTrack.gpx';
         istart    = 650;
         iend      = 850;
         
@@ -42,8 +54,6 @@ switch lower(gID)
         varargin(1)=[];
 end
 
-%%
-%{
 while ~isempty(varargin)
         switch lower(varargin{1})
             case 'nbP'
@@ -61,8 +71,12 @@ while ~isempty(varargin)
         end
             varargin(1:2)=[];
 end
-%}
+
 %%
+
+if ~exist('file2load')
+    file2load = [path2track fileName]
+end
 
 % Load the route     
 routeF = gpxread(file2load);
