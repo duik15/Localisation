@@ -1,5 +1,13 @@
 # See url for information to ignore folder and files
 # https://www.atlassian.com/fr/git/tutorials/saving-changes/gitignore#git-ignore-patterns
 # 
-# Ignore all archives
+# Ignore mac stupid file
+.DS_Store
+
+# Ignore all archives -> Put your local trash script in an archives folder
 /archives
+
+# You cant add your own localConfig folder if you do not want to push it to origin
+# /localConfig 
+
+/configDell

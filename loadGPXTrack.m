@@ -1,6 +1,8 @@
 function [time, loc, lat, lon, angle, dist] = loadGPXTrack(timeIn, gID,varargin)
 % [gtime gloc] = loadGPXTrack(gID,varargin)
 % [gtime gloc] = loadGPXTrack(gID,'istart',istart,'iend',iend,'type','online')
+% Create a new .mat 
+% ~ = loadGPXTrack([],'AAV','saveTrack',true,'istart',1,'iend',0)
 % Varargin option:
 %   type : online = open street map show
 %          geoshow= quick matlab blanck map
@@ -9,14 +11,15 @@ function [time, loc, lat, lon, angle, dist] = loadGPXTrack(timeIn, gID,varargin)
 %            file -> loadGPXTrack('file',file2load)
 
 % Debug
-%gID  = 'aav';
-%timeIn = [];
+gID  = 'aav';
+timeIn = [];
 
 % defautl parameter
 %nbPoint = 10;
 showFig = 0;
 printFig = [];
-saveTrack = true;
+saveTrack = false;
+gpxToolBox = false;
 
 % Get the path to data
 compName = getMachine();
@@ -30,22 +33,39 @@ switch lower(compName)
         warning('Path to boat track is not fund. Please make sure to specify the path in the varagin option or add your computer to the list.')
 end
 
-%%
 switch lower(gID)
     case 'aav'
-        fileName = 'aavCircle.gpx';
+        if gpxToolBox == true
+            fileName = 'aavCircleTrack.gpx';
+        else
+            fileName = 'aavFullTrack.mat';
+        end
         istart    = 1600;
         iend      = 1900;
     case 'cld'
-        fileName = 'cldCircleTrack.gpx';
+        if gpxToolBox == true
+            fileName = 'cldCircleTrack.gpx';
+        else
+            fileName = 'cldFullTrack.mat';
+        end
         istart    = 1;
         iend      = 300;
     case 'mlb'
-        fileName = 'mlbPrcTrack.gpx';
+        if gpxToolBox == true
+            fileName = 'mlbPrcTrack.gpx';
+        else
+            fileName = 'mlbFullTrack.mat';
+        end
+        
         istart    = 110;
-        iend      = 1350;
+        iend      = 350;
     case 'prc'
-        fileName= 'mlbPrcTrack.gpx';
+        if gpxToolBox == true
+            fileName = 'mlbPrcTrack.gpx';
+        else
+            fileName = 'prcFullTrack.mat';
+        end
+        
         istart    = 650;
         iend      = 850;
         
@@ -53,7 +73,7 @@ switch lower(gID)
         file2load = varargin{1};
         varargin(1)=[];
 end
-
+%%
 while ~isempty(varargin)
         switch lower(varargin{1})
             case 'nbP'
@@ -62,10 +82,18 @@ while ~isempty(varargin)
                 istart = varargin{2};
             case 'iend'
                 iend = varargin{2};
+            case 'timemin'
+                timemin = varargin{2};
+                istart = 1;
+            case 'timemax'
+                timemax = varargin{2};
+                iend=0;
             case 'showfig'
                 showFig = varargin{2};
             case 'printfog'
                 printFig = varargin{2};
+            case 'savetrack'
+                saveTrack = varargin{2};
             otherwise
                 error(['Can''t understand property: ' varargin{1}])
         end
@@ -75,19 +103,29 @@ end
 %%
 
 if ~exist('file2load')
-    file2load = [path2track fileName]
+    file2load = [path2track fileName];
 end
 
-% Load the route     
-routeF = gpxread(file2load);
+% Load the route 
+if gpxToolBox == true
+    routeF = gpxread(file2load);
+else
+    routeF = load(file2load);
+end
 
 if ~exist('istart')
     istart  = 1;
 end
-if ~exist('iend')
-    istart  = length(routeF);
+if ~exist('iend') || iend ==0
+    if gpxToolBox == true
+        iend  = length(routeF.Latitude);
+    else
+        iend = length(routeF.lat);
+    end
+    
 end
 
+if gpxToolBox == true
 % Selected index
 route.lat = routeF.Latitude(istart:iend);
 route.lon = routeF.Longitude(istart:iend);
@@ -96,7 +134,12 @@ route.lon = routeF.Longitude(istart:iend);
 timeStr = strrep(routeF.Time(istart:iend),'Z','');
 dateN = datenum(timeStr,'yyyy-mm-ddThh:MM:ss');
 route.Time = datetime(dateN,'ConvertFrom', 'datenum');
-
+else
+   route.Time  = routeF.time(istart:iend);
+   route.lat  = routeF.lat(istart:iend);
+   route.lon  = routeF.lon(istart:iend);
+    
+end
 % Find the time asked
 if isempty(timeIn)
     index= 1:length(route.Time);
@@ -107,7 +150,19 @@ else
         [~,index(i)] = min(abs(route.Time - timeIn(i))); % Index of the depth
     end
 end
-%index = unique(index);
+index = unique(index,'stable');
+
+
+% Add another time filter if timemax and timemin is specify
+if exist('timemin')
+    indMin = min(find(route.Time > timemin))
+    index = index(index> indMin);
+end
+if exist('timemax')
+    indMax = max(find(route.Time < timemax))
+    index = index(index < indMax);
+end
+
 
 % Saving value
 time = route.Time(index);
@@ -119,7 +174,9 @@ loc = [lat',  lon'];
 
 if saveTrack == true
 %save(['/Users/Administrator/Documents/MPO/BRing/Data/gpxTrack/aavCircleTrack.mat'],'route')
-save(['/Users/Administrator/Documents/MPO/BRing/Data/boatTrack/' gID 'CircleTrack.mat'],'lat','lon','time','angle','dist')
+save([path2track gID 'Track.mat'],'lat','lon','time','angle','dist')
+%save([path2track gID 'FullTrack.mat'],'lat','lon','time','angle','dist')
+disp('Done saving track!')
 end 
 
 %----------------------  Figure  ------------------------------

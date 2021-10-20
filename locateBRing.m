@@ -120,6 +120,7 @@ for iFile =1:length(fileList)
     for u = 1 : length(vec_azimut)
         for v = 1 : length(xc_rel)
             d_marche =-xc_rel(v)*sin(vec_azimut(u))+-yc_rel(v)*(cos(vec_azimut(u)));
+            %MAT_POND_vs_azim_h_freq(u,v,:) = 1/Ncapt*exp(-sqrt(-1)*2*pi*vec_f_INT*d_marche/c);
             MAT_POND_vs_azim_h_freq(u,v,:) = 1/Ncapt*exp(-sqrt(-1)*2*pi*vec_f_INT*d_marche/c);
         end
     end
@@ -127,13 +128,15 @@ for iFile =1:length(fileList)
     
     % Goniométrie -------------------> Figure 2,3
     Energie = [];
+    df = vec_f(2) -vec_f(1);
     for u = 1 : length(vec_azimut)
         MAT_POND_vs_h_freq =squeeze(MAT_POND_vs_azim_h_freq(u,:,:));
         Energie(u) = 0;
         for v = 1 : length(vec_f_INT)
             vec_pond = (MAT_POND_vs_h_freq(:,v)');
             vec_sfft  = MAT_ffts_vs_f_h_INT_INT(v,:);
-            Energie(u) = Energie(u)+ (abs(sum(vec_pond.*vec_sfft)))^2;
+            %Energie(u) = Energie(u)+ (abs(sum(vec_pond.*vec_sfft)))^2;
+            Energie(u) = Energie(u)+ 1/(Ns*fe)*(abs(sum(vec_pond.*vec_sfft)))^2*df;
         end
     end
     
