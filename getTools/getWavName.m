@@ -2,6 +2,7 @@ function [fileName wavID] = getWavName(dateIn, folder)
 %This load your wave file by specifying the folder, date and time
 %fileName = getWavName(datetime(2021,07,15,14,37,00),mypath)
 %
+%dateIn
 
 %Loading folder and files informations
 dirInfo = dir(folder);
@@ -17,11 +18,10 @@ for i=1:numel(fileList)
     
     if strcmp(fileList{i}(end-2:end),'wav') == 0
         i2erase = [i2erase i];
-    end
-    
-    if ~strcmp(splitName{2} , typeHL)
+    elseif ~strcmp(splitName{2} , typeHL) && ~strcmp(splitName{2} ,['2591' typeHL])
         i2erase = [i2erase i];
     end
+    
 end
 
 % Erase non-wav file
@@ -41,7 +41,6 @@ for i=1:nbF
 end
 
 %Find the file
-
 if ~exist('dateT')
     error('Couln''t find any wav file corresponding.')
 end
