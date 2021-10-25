@@ -1,9 +1,8 @@
 
 if sum(diff(angleM(3:end-2)))< 0
-    pNb = 10:-1:1;
-    angleA = fliplr(aMax3);
+    pNb = nbF:-1:1;
 else
-    pNb = 1:10;
+    pNb = 1:nbF;
 end    
     
 % Linéaire regression

@@ -1,6 +1,7 @@
-function [time, loc, lat, lon, angle, dist] = loadGPXTrack(timeIn, gID,varargin)
-% [gtime gloc] = loadGPXTrack(gID,varargin)
-% [gtime gloc] = loadGPXTrack(gID,'istart',istart,'iend',iend,'type','online')
+function s = loadGPXTrack(timeIn, gID,varargin)
+%
+% s = loadGPXTrack(gID,varargin)
+% s = loadGPXTrack(gID,'istart',istart,'iend',iend,'type','online')
 % Create a new .mat 
 % ~ = loadGPXTrack([],'AAV','saveTrack',true,'istart',1,'iend',0)
 % Varargin option:
@@ -9,21 +10,21 @@ function [time, loc, lat, lon, angle, dist] = loadGPXTrack(timeIn, gID,varargin)
 %          mmap   = heavy and full resolution mmap
 %   gID :   aav, cld, mlb, prc -> Track around the array
 %            file -> loadGPXTrack('file',file2load)
-
+% Old :[time, loc, lat, lon, angle, dist] = loadGPXTrack(timeIn, gID,varargin)
 % Debug
 gID  = 'aav';
 timeIn = [];
 
 % defautl parameter
 %nbPoint = 10;
-showFig = 0;
-printFig = [];
+showFig = [];
+printFig = false;
 saveTrack = false;
 gpxToolBox = false;
+moreInfo = '';
 
 % Get the path to data
 compName = getMachine();
-
 switch lower(compName)
     case 'mac'
         path2track = '/Users/Administrator/Documents/MPO/BRing/Data/boatTrack/';
@@ -90,17 +91,25 @@ while ~isempty(varargin)
                 iend=0;
             case 'showfig'
                 showFig = varargin{2};
-            case 'printfog'
+            case 'printfig'
                 printFig = varargin{2};
             case 'savetrack'
                 saveTrack = varargin{2};
+            case 'path2track'
+                path2track = varargin{2};
+            case 'folderout'
+                outPath = varargin{2};
+            case 'gpxToolBox'
+                gpxToolBox = varargin{2};
+            case 'moreInfo'
+                moreInfo = varargin{2};
             otherwise
                 error(['Can''t understand property: ' varargin{1}])
         end
             varargin(1:2)=[];
 end
 
-%%
+%% 
 
 if ~exist('file2load')
     file2load = [path2track fileName];
@@ -152,25 +161,27 @@ else
 end
 index = unique(index,'stable');
 
-
 % Add another time filter if timemax and timemin is specify
 if exist('timemin')
-    indMin = min(find(route.Time > timemin))
+    indMin = min(find(route.Time > timemin));
     index = index(index> indMin);
 end
 if exist('timemax')
-    indMax = max(find(route.Time < timemax))
+    indMax = max(find(route.Time < timemax));
     index = index(index < indMax);
 end
 
-
 % Saving value
 time = route.Time(index);
-lat = route.lat(index);
-lon = route.lon(index);
-loc = [lat',  lon'];
+lat = route.lat(index)';
+lon = route.lon(index)';
+loc = [lat,  lon];
 
-[angle dist]= getRealAngle(gID, lat,lon);
+% Get the real position
+[angle, dist]= getRealAngle(gID, lat,lon);
+
+% Create a structure
+s.time = time; s.lat = lat; s.lon = lon; s.loc=loc; s.angle = angle; s.dist = dist;
 
 if saveTrack == true
 %save(['/Users/Administrator/Documents/MPO/BRing/Data/gpxTrack/aavCircleTrack.mat'],'route')
@@ -179,9 +190,57 @@ save([path2track gID 'Track.mat'],'lat','lon','time','angle','dist')
 disp('Done saving track!')
 end 
 
-%----------------------  Figure  ------------------------------
-if any(showFig ==1 )
+%% ----------------------  Figure  ------------------------------
+
+if printFig == true
+   if ~exist('outPath')
+       outPath = [path2track 'trackMap\']; 
+   end
+   if ~isfolder(outPath); disp(['Creating output folder: ' outPath]); mkdir(outPath); end
+end
+
+
+if any(showFig ==1)
+    % Plot limit
+    %dlat = 0.00005;%max(lat) - min(lat);
+    %dlon = 0.00005;%max(abs(lon)) - min(abs(lon));
+    figure(1)    
+    h1 = plot(lon,lat,'-ok');
+    ax=gca;
+    grid on;
+    xlabel('Longitude')
+    ylabel('Latitude')
+    if printFig == true
+        print('-dpng','-r150',[outPath gID 'Track.png'])  
+    end
+end
+
+if any(showFig==2)
+
+    figure(1)   
+    subplot(3,2,1:2)
+    [ax1,h1,h2] = plotyy(time, dist,time,angle);
+    xlabel('Time')
+    ylabel(ax1(1),'Distance(m)')
+    ylabel(ax1(2),'Azimute($^\circ$)','interpreter','latex')
     
+    subplot(3,2,3:6)
+    h1 = plot(lon,lat,'-ok');
+    ax=gca;
+    grid on;
+    xlabel('Longitude')
+    ylabel('Latitude')
+    axis square
+    if printFig == true
+        print('-dpng','-r150',[outPath gID 'TrackNdistance.png'])  
+    end
+    
+end
+
+
+
+if any(showFig ==3 )
+        
 % Plot limiit
 [latlim, lonlim] = geoquadline(route.lat, route.lon);
 [latlim, lonlim] = bufgeoquad(latlim, lonlim, .01, .01);    
@@ -201,7 +260,7 @@ end
 end 
 
 
-if any(showFig  ==2)
+if any(showFig  ==4)
 
     
 disp('Printing map')
