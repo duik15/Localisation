@@ -5,7 +5,8 @@
 % or by a get function [ploc, ptime ]  = getPingLoc('aav');
 %
 % The figure to plot can be specify by the argument showFig = [1 3 4..]
-% Figure code and description are located in showFigBring.m
+% Figure code and description are located in showFigBring.m and
+% showGlobalFig.m
 %
 % last update 7/10/2021 by @kevDuquette
 
@@ -13,7 +14,7 @@
 % -------------- Fixed variables --------------------
 
 % Loading file information
-[fileList wavID] = getWavName(ptime, folderIn);
+[fileList, wavID] = getWavName(ptime, folderIn);
 wavInfo = audioinfo([folderIn fileList{1}]);
 nbF = length(fileList);
 
@@ -127,7 +128,7 @@ for iFile =1:length(fileList)
     
     
     % Goniométrie -------------------> Figure 2,3
-    Energie = [];
+    Energie = nan(1,length(vec_azimut));
     df = vec_f(2) -vec_f(1);
     for u = 1 : length(vec_azimut)
         MAT_POND_vs_h_freq =squeeze(MAT_POND_vs_azim_h_freq(u,:,:));
@@ -159,6 +160,8 @@ for iFile =1:length(fileList)
     showFigBring;
     
 end % end loop on file
+
+
 
 % Show global figure
 showGlobalFig;

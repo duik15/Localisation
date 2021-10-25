@@ -28,7 +28,7 @@ b = loadGPXTrack([],arrID,'istart',1,'iend',0,'showFig',2,'printFig',true,'folde
 %ptimeP = getPingInfo(arrID);
 %[indexT val ] = getInbetween(ptimeT, [min(ptimeP) max(ptimeP)]);
 % Now opening file with a dt specifiy
-dt = seconds(1);
+dt = seconds(10);
 ptime = min(b.time):dt:max(b.time);
 
 
