@@ -170,7 +170,7 @@ showGlobalFig;
 % Saving data
 if saveData == true
     if exist('angleR')
-        save([folderOut 'dataAngleOfArrival_' outName '.mat'],'angleA','angleM','angleR','ptime','ploc','matEnergie')
+        save([folderOut 'dataAngleOfArrival_' outName '.mat'],'angleA','angleM','angleR','ptime','matEnergie')
     else
         save([folderOut 'dataAngleOfArrival_' outName '.mat'],'angleA','angleM','ptime','matEnergie')
     end

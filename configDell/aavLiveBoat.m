@@ -7,7 +7,7 @@ close all
 addpath(genpath('../'));
 
 % Need to run data or just open it?
-openData = false;
+openData = true;
 
 % Path information : folderIn = wav folder / folderOut = figure output folder
 % arrID = AAV / CLD / MLB / PRC || outName = name of the output folder and figures
@@ -23,13 +23,13 @@ folderOut = ['C:\Users\duquettek\Documents\BRing\results\' arrID '\' outName '\'
 
 % Loading files and time
 % Time must be in datetime format. The file to load will be automatically find
-b = loadGPXTrack([],arrID,'istart',1,'iend',0,'showFig',2,'printFig',true,'folderout',folderOut);
+g = loadGPXTrack([],arrID,'istart',1,'iend',0,'showFig',2,'printFig',true,'folderout',folderOut);
 %b = loadGPXTrack([],arrID);
 %ptimeP = getPingInfo(arrID);
 %[indexT val ] = getInbetween(ptimeT, [min(ptimeP) max(ptimeP)]);
 % Now opening file with a dt specifiy
 dt = seconds(10);
-ptime = min(b.time):dt:max(b.time);
+ptime = min(g.time):dt:max(g.time);
 
 
 % Figure parameters
@@ -50,8 +50,8 @@ fmax_int = 200;
 
 % Get the real angle
 %arrLoc = getArrLoc(arrID);
-%angleR = getRealAngle(arrID, ploc(:,1),ploc(:,2));
-
+angleR = getRealAngle(arrID, g.lat,g.lon);
+g.angleR = angleR;
 
 
 % If wanted to open alredy run script
@@ -59,13 +59,19 @@ if openData == true
     disp('Opening already run data')
     %p = getRunData(pingFolder);
     %b = getRunData(boatFolder);
-    %bName = dir([folderOut 'data*']);
-    %load ([folderOut bName.name])
-    
-    % Ploting the global figure
-    %showFig =[10 11];
-    %showFigAngleTime;
+    bName = dir([folderOut 'data*']);
+    load ([folderOut bName.name])
+   
 else
     locateBRing; % The main loop calculation are locate in this script
     
 end
+
+
+%% Figures
+
+% Show the azimute as fonction of time
+showAzigrame;
+
+% Show the matrice of energie with ping location
+showMatEngergie;
