@@ -15,7 +15,6 @@ typeHL = 'LF';
 i2erase = [];
 for i=1:numel(fileList)
     splitName = split(fileList{i}, '_');
-    
     if strcmp(fileList{i}(end-2:end),'wav') == 0
         i2erase = [i2erase i];
     elseif ~strcmp(splitName{2} , typeHL) && ~strcmp(splitName{2} ,['2591' typeHL])
@@ -31,10 +30,10 @@ fileList(i2erase)  = [];
 nbF = length(fileList);
 
 %Getting time from name
+formatIn = 'yyyymmddThhMMss';
 for i=1:nbF
     splitName = split(fileList{i}, '_');
-    dateString = splitName{3};
-    formatIn = 'yyyymmddThhMMss';
+    dateString = splitName{3};    
     dateN = datenum(dateString,formatIn);
     dateT(i,1) = datetime(dateN,'ConvertFrom', 'datenum');
     id{i} = splitName{4};
@@ -45,13 +44,26 @@ if ~exist('dateT')
     error('Couln''t find any wav file corresponding.')
 end
 
+
+% Loading all time if not specified
+if isempty(dateIn)
+   dateIn =  dateT; 
+end
+
+
 for i=1:length(dateIn)
-    
 % Check if need to load another file 
 bolTime =  dateT >= dateIn(i);
-
 if any(bolTime) == 1
-    iFile(i) = find(bolTime, 1, 'first') - 1;
+    ft = find(bolTime, 1, 'first');
+    diffT = dateT(ft) - dateIn(i) ;
+    if diffT == seconds(0)
+        iFile(i) = ft;
+    elseif diffT < minutes(5) && diffT > 0 && ft > 1
+        iFile(i) = ft - 1 ;
+    else
+        error('Couldnt load the file at l.61 or add more conditions.')
+    end
 elseif dateT(end) + minutes(4.99) >  dateIn(i)
     iFile(i) = length(dateT);
 else
@@ -60,16 +72,21 @@ end
 
 % Check is file actually exist
 %disp('Check function here in getWavName')
-if iFile(i) == 0 
+if iFile(i) == 0
     error('Error in bringRead.m. Request time is not in the folder.')
 end
 end
 
 %iFile = unique(iFile);
 %output name
-fileName = fileList(iFile)';
-wavID = id(iFile);
+
+if exist('iFile')
+    fileName = fileList(iFile)';
+    wavID = id(iFile);
+else
+        error('Error in bringRead.m. Request time is not in the folder.')
+end
 end
 
- 
+
 

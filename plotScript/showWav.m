@@ -2,7 +2,7 @@ function showWav(Y,Fs,varargin)
 % showWav(Y,Fs)
 % showWav(Y,Fs,'time', 120, 'duration',20,'chanel',[1 2 3],'tPos',1,'printFig', true)
 disp('< -- Automatic wav plot -- >')
-ok=1
+
 % Default Parameters
 showFig = [1];   % Plot ID, can be an array for mutiple plot
 moreInfo = '';  % Add info when saving XX_moreInfo.png

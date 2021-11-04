@@ -12,8 +12,8 @@ function s = loadGPXTrack(timeIn, gID,varargin)
 %            file -> loadGPXTrack('file',file2load)
 % Old :[time, loc, lat, lon, angle, dist] = loadGPXTrack(timeIn, gID,varargin)
 % Debug
-gID  = 'aav';
-timeIn = [];
+%gID  = 'aav';
+%timeIn = [];
 
 % defautl parameter
 %nbPoint = 10;

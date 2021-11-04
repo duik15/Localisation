@@ -1,6 +1,7 @@
 % This figure shwo the angle of detection throught time
 % Azigrame/ 
 
+
 clf
 
 ploth=15;
@@ -43,6 +44,10 @@ end
 
 ylabel('Azimuth $^\circ$','interpreter','latex')
 xlabel('Time')
+
+if exist(limBol) && limBol == true
+    xlim(xlimit)
+end
 
 leg = legend(legGroup,legName,'Location','northwest');
 print('-dpng','-r150',[folderOut 'angleTime_' outName '.png' ])

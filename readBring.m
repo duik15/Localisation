@@ -53,11 +53,20 @@ tstart = ftime + start;
 istart = floor((seconds(start) - buffer) * Fs) ;
 iend = istart + Ns -1;
 
-if iend < ainfo.TotalSamples
-    
+
+if istart > 0 && iend < ainfo.TotalSamples
     [Y,Fs] = audioread(fileName,[istart iend]);
     %Y = Y(istart:iend,:);
-else
+elseif istart < 0
+   % Loading the first file
+   [fileName2 wavID] = getWavName(time - seconds(dura), fileparts(fileName)); 
+   [Y1,Fs1] = audioread(fileName2,[ainfo.TotalSamples + istart ainfo.TotalSamples]);
+    
+   [Y2,Fs2] = audioread(fileName,[0 iend]);
+    
+   Y = [Y1; Y2];
+    
+else  % Need to open next audio file
     
     % Find how many sample are over
     overSample = iend - ainfo.TotalSamples;

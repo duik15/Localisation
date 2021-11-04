@@ -21,10 +21,22 @@ while ~isempty(varargin)
     varargin(1:2)=[];
 end
 
-% This function return time and date associated with a file
-splitName = split(fileName, '_');
-dateString = splitName{cellNumber};
 
-dateN = datenum(dateString,formatIn);
-dateT = datetime(dateN,'ConvertFrom', 'datenum');
+if iscell(fileName)
+    for i=1:numel(fileName)
+        % This function return time and date associated with a file
+        splitName = split(fileName{i}, '_');
+        dateString = splitName{cellNumber};
+        
+        dateN = datenum(dateString,formatIn);
+        dateT(i,1) = datetime(dateN,'ConvertFrom', 'datenum');
+    end
+else
+    % This function return time and date associated with a file
+    splitName = split(fileName, '_');
+    dateString = splitName{cellNumber};
+    
+    dateN = datenum(dateString,formatIn);
+    dateT = datetime(dateN,'ConvertFrom', 'datenum');
+end
 end
