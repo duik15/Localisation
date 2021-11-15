@@ -40,7 +40,8 @@ for i=1:nbF
 end
 
 %Find the file
-if ~exist('dateT')
+if ~exist('dateT')  
+    dateT
     error('Couln''t find any wav file corresponding.')
 end
 

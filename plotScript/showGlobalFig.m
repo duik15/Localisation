@@ -48,19 +48,19 @@ text(xc(ic)+0.2,yc(ic),num2str(ic),'fontsize',14)
 end
 end
 
-if any ( showFig == 9)
+if any ( showFig == 98)
     
     
     figure(9)
     
-    plot(aMax,'--ok')
+    plot(angleM,'--ok')
     xlabel('Ping number')
     ylabel('Angle of arrival')
     print([folderOut 'angleOfArrivalbad_' outName '.png'],'-r150','-dpng')
     
     
     
-     [asort, isort] = sort(aMax);
+     [asort, isort] = sort(angleM);
     
     figure(7)
     
