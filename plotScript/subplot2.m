@@ -64,7 +64,6 @@ if ~isfield(sp,'fracx')
     sp.fracx = repmat(1/sp.nbx,1,sp.nbx);
 end
 
-
 % Calcul the size of each panel
 subxsize=((sp.width-sp.ledge-sp.redge-sp.spacex*(sp.nbx-1.0)) ) * sp.fracx;
 subysize=((sp.height-sp.tedge-sp.bedge-sp.spacey*(sp.nby-1.0)) ) * sp.fracy;
