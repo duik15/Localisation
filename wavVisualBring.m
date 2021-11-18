@@ -15,6 +15,7 @@ clc
 clear all
 close all
 tic
+mem0 = memory;
 %% Variables
 % enviroment variables
 arrID = 'AAV';
@@ -29,8 +30,8 @@ saveflag = true;                   % [true or false]
 
 
 % Selecting file wanted
-time2Load = datetime(2021,07,15,09,50,00);
-%time2Load = datetime(2021,07,30,10,00,00):minutes(5):datetime(2021,07,30,21,30,00);
+%time2Load = datetime(2021,07,15,09,50,00);
+time2Load = datetime(2021,07,14,00,00,00):minutes(5):datetime(2021,07,14,02,00,00);
 
 % List file in the folderIn
 file = getWavName(time2Load,folderIn);
@@ -45,7 +46,7 @@ spgm.im.format = 'png';             % image output format 'png', 'jpg'
 spgm.im.dur = 30;%'all';                % [s or 'all'] figure duration
 spgm.im.ovlp = 0;                   % [%] image window overlap
 spgm.im.link_axes = false;           % [true false] use fonction linkaxes
-spgm.im.figvision = false  ;           % [true false] visiblity of figure before saveas jpf file
+spgm.im.figvision = true  ;           % [true false] visiblity of figure before saveas jpf file
 spgm.im.constrast = [1 1.2];        % Constrat the clims by [x x] between 0 and 1 caxis = caxis * [cont1 cont2]
 spgm.im.movm = 100;                  % Movmean parameter for the first panel
 spgm.im.FontS = 14;                  % Image font Size
@@ -100,6 +101,13 @@ for i_file = 1:length(file)
     %timeFile = getFileTime([file{i_file}]);
     %time =  timeFile + seconds((1:acinfo.TotalSamples)/acinfo.SampleRate ) ;
     %time = timeFile + seconds(it);
+    if i_file ==2
+        mem2 = memory;
+    elseif i_file == 5
+        mem5 =  memory;
+    elseif i_file ==20
+        mem20=memory;
+    end    
     
     % Loop on short
     for j=1:spgm.im.n %j=1:spgm.im.n
@@ -204,11 +212,11 @@ for i_file = 1:length(file)
             %saveas(fig_hdl,[folderOut file{i_file}(1:end-4) '_s' num2str(floor(timeRec(1))) '_e' num2str(ceil(timeRec(end))) '.' spgm.im.format]);
         end
            toc
-        if spgm.im.figvision
-            pause;
-            clf
-        end
-
+        %if spgm.im.figvision
+        %    pause;
+        %    clf
+        %end
+close all
 
     end
       disp('end')

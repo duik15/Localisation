@@ -156,7 +156,7 @@ for iFile =1:length(fileList)
     [pk pkloc] = findpeaks(Energie_NORM,'SortStr','descend','NPeaks', 4 );%'MinPeakHeight',0.3);
     
     % Find the direction of source
-    if length(pkloc) < nbPk; pkloc= [pkloc nan(1,nbPk - numel(pkloc)  )] ;end
+    if length(pkLoc < nbPk);  ;end
         
     angleA(iFile, : )  = pkloc;  % Angle of arrival with side lobe
     angleM(1,iFile)  = pkloc(1);  % Max angle of arrival

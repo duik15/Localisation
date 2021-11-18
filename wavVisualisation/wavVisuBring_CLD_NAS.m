@@ -25,17 +25,17 @@ mainCh = [13 8 2];    % Looking only one chanel to speed up everything
 %outName = 'aavLiveBoat_onlyTrackTime_Ns14_f150-200hz';
 %folderIn = ['~/Documents/MPO/BRing/Data/wav/' arrID '/']; % Local Mac folder
 %folderOut = [folderIn '/' 'spectrogram/'];
-%folderIn = ['E:\Bring_Dep_1\' arrID '\'];
-%folderOut = ['C:\Users\duquettek\Documents\BRing\results\' arrID '\spectro\']; %spectrogram'];
-folderIn = ['\\169.254.47.215\usbshare1-2\Bring_Dep_1\' arrID '\']
-folderOut = ['Z:\DATA\missions\2021-07-27_IML_2021-016_BRings\results\' arrID '\spectro\']; %spectrogram'];
+folderIn = ['F:\Bring_Dep_1\' arrID '\'];
+folderOut = ['C:\Users\duquettek\Documents\BRing\results\' arrID '\spectro\']; %spectrogram'];
+%folderIn = ['\\169.254.47.215\usbshare1-2\Bring_Dep_1\' arrID '\']
+%folderOut = ['Z:\DATA\missions\2021-07-27_IML_2021-016_BRings\results\' arrID '\spectro\']; %spectrogram'];
 
 saveflag = true;                   % [true or false]
 
 
 % Selecting file wanted
 %time2Load = datetime(2021,07,15,09,50,00);
-time2Load = datetime(2021,07,15,00,00,00):minutes(5):datetime(2021,07,16,00,00,00);
+time2Load = datetime(2021,07,15,00,00,00):minutes(5):datetime(2021,07,15,06,00,00);
 
 % List file in the folderIn
 file = getWavName(time2Load,folderIn);

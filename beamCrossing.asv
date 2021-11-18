@@ -47,9 +47,8 @@ if any(showFig ==1)
     
     % Read bathymetry
     if strcmp(getMachine,'dellKev')
-    load    C:\Users\duquettek\Documents\MATLAB\oceanographicTools\m_map\mmap_ex\GSL_bathy_500m.mat
-    load    C:\Users\duquettek\Documents\MATLAB\oceanographicTools\m_map\mmap_ex\gebco_colormap.dat
-    elseif strcmp(getMachine,'labo')
+        C:\Users\duquettek\Documents\MATLAB\oceanographicTools\m_map\mmap_ex
+    elseif strcmp(getMachine,'dellKev')
     load T:\ALGORITHMES\mapTools\GSL_bathy_500m.mat
     load T:\ALGORITHMES\mapTools\gebco_colormap.dat
     else

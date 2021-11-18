@@ -1,11 +1,11 @@
-function [fileName wavID] = getWavName(dateIn, folder)
+function [fileName wi] = getWavName(dateIn, folderIn)
 %This load your wave file by specifying the folder, date and time
 %fileName = getWavName(datetime(2021,07,15,14,37,00),mypath)
 %
 %dateIn
 
-%Loading folder and files informations
-dirInfo = dir(folder);
+%Loading folderIn and files informations
+dirInfo = dir(folderIn);
 dirInfo([dirInfo.isdir]) = [];
 fileList = {dirInfo.name};
 
@@ -37,12 +37,12 @@ for i=1:nbF
     dateN = datenum(dateString,formatIn);
     dateT(i,1) = datetime(dateN,'ConvertFrom', 'datenum');
     id{i} = splitName{4};
+    
 end
 
 %Find the file
 if ~exist('dateT')  
-    dateT
-    error('Couln''t find any wav file corresponding.')
+    error(['No file found for ' datestr(dateIn) ' in ' folderIn  '.'])
 end
 
 
@@ -83,7 +83,17 @@ end
 
 if exist('iFile')
     fileName = fileList(iFile)';
-    wavID = id(iFile);
+    for i=1:length(iFile)
+        splitName = split(fileList{iFile(i)}, '_');
+        wi(i).arrLoc = splitName{1};
+        wi(i).type = splitName{2};
+        wi(i).dateStr = splitName{3};
+        wi(i).wavID = splitName{4};
+        
+        dateString = splitName{3};    
+        dateN = datenum(dateString,formatIn);
+        wi(i).dateT = datetime(dateN,'ConvertFrom', 'datenum');
+    end
 else
         error('Error in bringRead.m. Request time is not in the folder.')
 end

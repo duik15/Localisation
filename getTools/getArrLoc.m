@@ -1,6 +1,7 @@
 function [loc offSet arrOri]= getArrLoc(hID)
 % Get the most accurate array location for the moment
 %[loc offSet arrOri]= getArrLoc(hID)
+warning('getArrLoc.m is obsolet. Please use getArrInfo and recode your script using a structure.')
 
 switch lower(hID)
     case 'aav'
