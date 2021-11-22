@@ -1,4 +1,4 @@
-[loc] = beamCrossing(arrId2,arrID2,a1,a2,varargin)
+function [loc bc] = beamCrossing(arrID1,arrID2,a1,a2,varargin)
 % This script make a triangularization of two beam to find back to position
 %[loc] = beamCrossing(pos1,pos2,a1,a2,varargin)
 %https://www.mathworks.com/help/map/ref/polyxpoly.html
@@ -17,6 +17,8 @@ while ~isempty(varargin)
     switch lower(varargin{1})
         case 'cellnumber'
             cellNumber = varargin{2};
+        case 'showfig'
+            showFig = varargin{2};
             
         otherwise
             error(['Can''t understand property: ' varargin{1}])
@@ -39,7 +41,7 @@ lon2 = linspace(pos2(2),lon2m,1000);
 lat1 = linspace(pos1(1),lat1m,1000);
 lat2 = linspace(pos2(1),lat2m,1000);
 
-[loni,lati] = polyxpoly(lon1,lat1,lon2,lat2);
+[loni,lati] = polyxpoly2(lon1,lat1,lon2,lat2);
 
 loc = [lati, loni];
 %% Figure
