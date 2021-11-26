@@ -120,6 +120,8 @@ for i_file = 1:length(file)
         %
         timeRec = it / acinfo.SampleRate;
         
+        % HERE
+        
         %acf.s = acf.s(:,mainCh);
         rec = acf.s(it,mainCh);
         

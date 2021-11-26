@@ -22,28 +22,32 @@ nbF = length(fileList);
 [arrLoc, arr] = getArrInfo(arrID);
 
 % Spectro parameters
-% Spectro windows
-LFFT_spectro = 2048;
-LFFT_FV = Ns;
-REC = 0.9;
-w_pond = kaiser(LFFT_spectro ,0.1102*(180-8.7)); w_pond = w_pond*sqrt(LFFT_spectro/sum(w_pond.^2));
-fact_zp =4;
+% Modification of variables into a structure spec. If you get error related
+% to those name plase do a ctrl+f and modify new name.
+spec.winSz = 2048;  % LFFT_spectro
+spec.rec = 0.9; % REC
+sepc.ovlp = 1-spec.rec;
+spec.wpond = kaiser(spec.winSz ,0.1102*(180-8.7)); 
+spec.wpond = spec.wpond*sqrt(spec.winSz/sum(spec.wpond.^2)); %w_pond
+spec.zp =4; % fact_zp
+spec.fmin = fmin_int;
+spec.fmax = fmax_int;
 
  % Length of wav in second to load
 duraNs = Ns / 10000;     
 
 % Sound velocities
-c = 1500;
+c = 1475;
 
 % Pcolor plot
-Lmin = 30;
-Lmax = 70;
+spec.Lmin = 30; % Lmin
+spec.Lmax = 70; % Lmax
 
 NB_voies_visees = 72;
 
-SH =-194;
-G = 40;
-D = 1;
+spec.SH =-194;
+spec.G = 40;
+spec.D = 1;
 
 duree_film = 60;
 
@@ -81,19 +85,22 @@ for iFile =1:length(fileList)
     
     
     % Reading wav
-    [MAT_s,fe, tstart, dura] = readBring([folderIn fileList{iFile}], ptime(iFile),'duration',duraNs,'buffer',buffer,'power2',true);
+    [MAT_s,fe, time_s, audioInfo] = readBring([folderIn fileList{iFile}], ptime(iFile),'duration',duraNs,'buffer',buffer,'power2',true);
     file_wav = fileList{iFile};     % file name alone
+    spec.Fs = fe; spec.Ns =  audioInfo.Ns;
+    
     
     % ------------------ BEAMFORMIGN -----------------------
-    MAT_s_vs_t_h = 10^(-SH/20)*10^(-G/20)*D*MAT_s;
+    MAT_s_vs_t_h = 10^(-spec.SH/20)*10^(-spec.G/20)*spec.D*MAT_s;
     aa = size(MAT_s_vs_t_h);
     Nsample = aa(1,1);
     Nc =aa(1,2);
     Duree = (Nsample-1)*1/fe;
-    t = (0:1:Nsample-1)*1/fe;
+    time = (0:1:Nsample-1)*1/fe;
+    t=time; % Need to be find and rename
     
     % visualisation spectrogramme channel 1
-    [vec_temps, vec_freq, MAT_t_f_STFT_complexe, MAT_t_f_STFT_dB] = COMP_STFT_snapshot(MAT_s_vs_t_h(:,1),0, fe, LFFT_spectro, REC, w_pond, fact_zp);
+    [vec_temps, vec_freq, MAT_t_f_STFT_complexe, MAT_t_f_STFT_dB] = COMP_STFT_snapshot(MAT_s_vs_t_h(:,1),0, fe, spec.winSz, spec.rec, spec.wpond, spec.zp);
     
     % focalisation sur 1 snapshot particulier
     MAT_s_vs_t_h_INT = MAT_s_vs_t_h;
@@ -103,10 +110,11 @@ for iFile =1:length(fileList)
     for u = 1 : Nc
         MAT_ffts_vs_f_h_INT(:,u)=fft(MAT_s_vs_t_h_INT(:,u));
     end
-    vec_f = (0:1:LFFT_FV-1)*fe/LFFT_FV;
+    vec_f = (0:1:spec.Ns-1)*fe/spec.Ns; % To check that line!
      
     indi_f = find( (vec_f >= fmin_int)&(vec_f <= fmax_int));
-    MAT_ffts_vs_f_h_INT_INT = MAT_ffts_vs_f_h_INT(indi_f,:);
+    MAT_ffts_vs_f_h_INT_INT = MAT_ffts_vs_f_h_INT(indi_f,:); 
+    indiff = indi_f;
     vec_f_INT = vec_f(indi_f);
     
     NN = 360;
@@ -135,6 +143,7 @@ for iFile =1:length(fileList)
     
     
     % Goniométrie -------------------> Figure 2,3
+    % To be recode with less variables
     Energie = nan(1,length(vec_azimut));
     df = vec_f(2) -vec_f(1);
     for u = 1 : length(vec_azimut)
@@ -166,7 +175,7 @@ for iFile =1:length(fileList)
     matEnergie(iFile, :) = Energie;
     
     % Printing figure
-    showFigBring;
+    %showFigBring;
     
 end % end loop on file
 

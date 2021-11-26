@@ -1,4 +1,4 @@
-function [Y,Fs,tstart,dura,test] = readBring(fileName, time,  varargin)
+function [Y,Fs,time,audioInfo] = readBring(fileName, time,  varargin)
 % [Y,Fs,tstart,dura] = bringRead(fileName, time,  10, 'duration', 10, 'buffer',1)
 
 
@@ -80,6 +80,14 @@ else  % Need to open next audio file
     Y = [Y1; Y2];
     
 end
+
+% Time
+time = (0:1:size(Y,1)-1)/ainfo.SampleRate;
+
+% Audio information
+audioInfo.Fs = ainfo.SampleRate;
+audioInfo.Ns = size(Y,1);
+audioInfo.dura = time(end);
 
 
 end
