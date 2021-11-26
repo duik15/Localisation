@@ -1,0 +1,178 @@
+%% WAV to fig spectrogram
+%
+% DESCRIPTION:
+% Load audio file, make create a beamforming and convert fig in jpg file
+% Use IML-PAM-Toolbox\wav_tools\wav_spectrogram_image.m to make this script developed by Florian A and Clement J
+%
+%
+% UPDATES:
+% 2021-11-20        Kevin.duquette@dfo-mpo.gc.ca (KD)
+%
+%
+
+clc
+clear all
+close all
+tic
+%mem0 = memory;
+%% Variables
+% enviroment variables
+arrID = 'AAV';
+%outName = 'aavLiveBoat_onlyTrackTime_Ns14_f150-200hz';
+folderIn = ['~/Documents/MPO/BRing/Data/wav/' arrID '/']; % Local Mac folder
+folderOut = [folderIn '/' 'beamFormingAll/'];
+outName = '';
+%folderIn = ['E:\Bring_Dep_1\' arrID '\'];
+%folderOut = ['C:\Users\duquettek\Documents\BRing\results\' arrID '\spectro\']; %spectrogram'];
+
+saveflag = false;                   % [true or false]
+
+% Selecting file wanted
+time2Load = datetime(2021,07,15,18,05,00);
+%time2Load = datetime(2021,07,14,00,00,00):minutes(5):datetime(2021,07,14,02,00,00);
+
+% Number of direction
+nbV =10;
+
+
+% Frequence min and max
+fmin = 150; fmax =200;
+
+% List file in the folderIn
+file = getWavName(time2Load,folderIn);
+
+% Get array information
+[aPos arr]  = getArrInfo(arrID);
+
+% Create azimut vector
+azimutV = arr.azimutMax(1):(arr.azimutMax(2)-arr.azimutMax(1))/nbV:arr.azimutMax(2);%(0:nbV-1) * (360 / nbV);
+
+if ~isfolder(folderOut); disp(['Creating output folder: ' folderOut]); mkdir(folderOut); end
+%%
+% Figure parameter
+sp.height=20; sp.width=40; sp.nbx=2; sp.nby=nbV/sp.nbx;
+sp.ledge=3; sp.redge=3.5; sp.tedge=2; sp.bedge=2;
+sp.spacex=0.3; sp.spacey=0.3;
+%sp.fracy = [0.1 0.3 0.3 0.3];
+sp.pos=subplot2(sp);
+
+%% Spectrogramme and beamforming information
+% Spectro parameters
+% Modification of variables into a structure spec. If you get error related
+% to those name plase do a ctrl+f and modify new name.
+spec.winSz = 2048;  % LFFT_spectro
+spec.rec = 0.9; % REC
+sepc.ovlp = 1-spec.rec;
+spec.wpond = kaiser(spec.winSz ,0.1102*(180-8.7));
+spec.wpond = spec.wpond*sqrt(spec.winSz/sum(spec.wpond.^2)); %w_pond
+spec.zp =4; % fact_zp
+spec.fmin = fmin;
+spec.fmax = fmax;
+spec.Lmin = 30; % Lmin
+spec.Lmax = 70; % Lmax
+spec.SH =-194;
+spec.G = 40;
+spec.D = 1;
+spec.dur = 15;
+
+spec.nbIm = 300 / spec.dur;
+nbIm =  spec.nbIm;
+% Other variables needed
+%duraNs = Ns / 10000;
+c = 1475;    % Sound velocity
+
+% spectrogram image parameters
+%spgm.im.freqlims = [10 200];       % [Hz] frequency scale boundary limits
+%spgm.im.freqscale = 'linear';       % ['linear' or 'log'] frequency scale type
+%spgm.im.clims = [-120 0];           % [dB] C limite pcolor
+%spgm.im.lbwh = 'auto';              % [left, bottom, width, height or 'auto'] image size and location [800 500 188 179];
+%spgm.im.format = 'png';             % image output format 'png', 'jpg'
+%spgm.im.dur = 15;%'all';                % [s or 'all'] figure duration
+%spgm.im.ovlp = 0;                   % [%] image window overlap
+%spgm.im.link_axes = false;           % [true false] use fonction linkaxes
+%spgm.im.figvision = true  ;           % [true false] visiblity of figure before saveas jpf file
+%spgm.im.constrast = [1 1.2];        % Constrat the clims by [x x] between 0 and 1 caxis = caxis * [cont1 cont2]
+%spgm.im.movm = 100;                  % Movmean parameter for the first panel
+%spgm.im.FontS = 14;                  % Image font Size
+% spectrogram window parameters
+%spgm.win.dur = 2048/10000;                  % [s] spectrogram window length duration
+%spgm.win.ovlp = 50;                 % [%] spectrogram window overlap
+%spgm.win.type = 'hanning';
+%spgm.win.opad = 8;                  % [s] spectrogram zero padding
+
+
+
+
+%% Open the first
+
+acinfo = audioinfo([folderIn file{1}]);
+winL = spec.dur * acinfo.SampleRate;
+[wav.s,wav.fs] = audioread([folderIn file{1}],[1 winL]);
+spec.Fs = wav.fs;
+spec.Ns = size(wav.s,1);
+
+%acf.s = acf.s(:,mainCh);
+if strcmp(spec.dur,'all')
+    spec.dur = acinfo.Duration;
+end
+
+%spgm.im.ns = fix(spgm.im.dur*acinfo.SampleRate);
+spec.nbSpec = round(acinfo.TotalSamples/spec.Ns);
+
+% define spectrogram window
+%win.ns = fix(spgm.win.dur*wav.fs);
+%win.val = hanning(win.ns);
+%win.novlp = fix(spgm.win.ovlp/100*win.ns);
+%win.nfft = fix((spgm.win.dur+spgm.win.opad)*wav.fs);
+
+%% process
+tic
+% Get the ponderation matrice
+matPondahf = makePond(arrID,azimutV,spec.Ns,spec.Fs,'fmin',spec.fmin,'fmax',spec.fmax);
+
+% Loop on file
+for i = 1%:length(file)
+    % Read file
+    %disp([datestr(datetime('now')) ' | Load file ' num2str(i) '/' num2str(length(file)) ' -> ' file{i}]);
+    fprintf([datestr(datetime('now')) ' | Load file ' num2str(i) '/' num2str(length(file)) ' -> ' file{i}]);
+    % Loop on windows
+    for j=1:3%:spgm.im.n %j=1:spgm.im.n
+        fprintf('%',1)
+    
+        ind2Read  = (j-1)*spec.dur * acinfo.SampleRate+1 : j*spec.dur * acinfo.SampleRate;
+        
+        acinfo = audioinfo([folderIn file{i}]);
+        [wav.s,wav.fs] = audioread([folderIn file{i}],[ind2Read(1) ind2Read(end)]);
+        wav.ns = size(wav.s,1);
+        wav.ch = size(wav.s,2);
+        % Some line from cedric
+        wav.sdb = 10^(-spec.SH/20)*10^(-spec.G/20)*spec.D* wav.s;
+        
+        [reconFFT, timeV, freqV] = reconstruct(matPondahf, wav.sdb , azimutV, spec);
+        
+        
+        timeWin = ind2Read / acinfo.SampleRate;
+        
+        
+        % Get the reconstruct spectrogram
+        disp([datestr(datetime('now')) ' | Make reconstruction ']);
+        
+        showBeamFormingVisu;
+        tictocPrint(i,j) = toc;
+        close all
+    end
+    
+    
+tictocFile(i) = toc;
+end
+disp('end')
+tictocScript = toc;
+
+% Statistic
+totalIm = length(file) * nbIm;
+diffPrint=diff(tictocPrint);
+diffFile=diff(tictocFile);
+nowName = datestr(datetime('now'),'yyyymmddTHHMMSS');
+
+save([folderOut 'tictoc_' nowName '.mat'], 'file', 'nbIm','tictocPrint','tictocFile','tictocScript','totalIm','diffPrint','diffFile')
+
