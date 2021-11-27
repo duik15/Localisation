@@ -26,7 +26,7 @@ if any( showFig == 1 )
     ylim([20 300])
     xlabel(' t (s)')
     ylabel(' f (Hz)')
-    title(' Channel 1, dB re. 1µPa2/Hz','interpreter','tex')
+    title(' Channel 1, dB re. 1?Pa2/Hz','interpreter','tex')
     set(gca,'FontSize',16)
     colormap jet
     %caxis([Lmin Lmax])
@@ -46,8 +46,8 @@ if any( showFig == 2 )
     figure(2)
     plot(vec_azimut*180/pi, Energie_dB,'k','LineWidth',2);
     hold on
-    xlabel(' azimut (°)','interpret','tex')
-    ylabel(' SPL dB re. 1µPa','interpreter','tex')
+    xlabel(' azimut (?)','interpret','tex')
+    ylabel(' SPL dB re. 1?Pa','interpreter','tex')
     grid on
     set(gca,'FontSize',16)
     
@@ -132,7 +132,7 @@ if any ( showFig == 4 )
         vec_sfft  = MAT_ffts_vs_f_h_INT_INT(v,:);
         vec_sfft_FV(v) = sum(vec_pond.*vec_sfft);
     end
-    FFT_S_FV_int = zeros(1,floor(spec.Ns/2)+1);
+    FFT_S_FV_int = zeros(1,floor(LFFT_FV/2)+1);
     FFT_S_FV_int(indi_f) = vec_sfft_FV;
     FFT_S_FV = [ FFT_S_FV_int conj(fliplr(FFT_S_FV_int(2:length(FFT_S_FV_int)-1)))];
     s_FV = ifft(FFT_S_FV);
@@ -144,14 +144,14 @@ if any ( showFig == 4 )
     subplot(5,1,1);
     plot(t,s_FV,'k')
     xlabel(' t (s)');
-    %[vec_temps, vec_freq, MAT_t_f_STFT_complexe, MAT_t_f_STFT_dB] = COMP_STFT_snapshot(MAT_s_vs_t_h(:,1),0, fe, spec.winSz, spec.rec, spec.wpond, spec.zp);
-    [vec_temps_FV, vec_freq_FV, MAT_t_f_STFT_complexe, MAT_t_f_STFT_dB_FV] = COMP_STFT_snapshot(s_FV,t0-Ns/2*1/fe, fe, spec.winSz, spec.rec, spec.wpond, spec.zp);
+    %[vec_temps, vec_freq, MAT_t_f_STFT_complexe, MAT_t_f_STFT_dB] = COMP_STFT_snapshot(MAT_s_vs_t_h(:,1),0, fe, LFFT_spectro, REC, w_pond, fact_zp);
+    [vec_temps_FV, vec_freq_FV, MAT_t_f_STFT_complexe, MAT_t_f_STFT_dB_FV] = COMP_STFT_snapshot(s_FV,t0-Ns/2*1/fe, fe, LFFT_spectro, REC, w_pond, fact_zp);
     subplot(5,1,[2:5])
     pcolor(vec_temps_FV, vec_freq_FV,MAT_t_f_STFT_dB_FV'); shading flat; caxis([30 90]); colorbar
     ylim([fmin_int fmax_int])
     xlabel(' t (s)')
     ylabel(' f (Hz)')
-    title(['VOIE n°' num2str(indAziCible) ', dB rel'])
+    title(['VOIE n?' num2str(indAziCible) ', dB rel'])
     %caxis([Lmin Lmax])
     colormap jet
     
@@ -176,9 +176,84 @@ if any ( showFig == 5)
     %sp.fracy = [0.1 0.3 0.3 0.3];
     sp.pos=subplot2(sp);
     
+    % Needed some variable and matrix for the plot that are associated with
+    % fig5
     
     
-    [recon, timeV, freqV] = reconstruct(matPondahf, matFFT, azimut, freq, spec);
+    % Reconstruct the signla for many direction
+    Nvoie = nbSub^2;
+    pas = ceil(length(vec_azimut)/nbSub^2);
+    indNvoie = 1:pas:length(vec_azimut);
+    
+    % initialize
+    vec_azim_nvoie = [];
+    MAT_s_FV_vs_t_voie=zeros(Ns,length(1 : pas : length(vec_azimut)));
+    
+    
+    for u = 1 : length(indNvoie)
+        vec_azim_nvoie(u) = vec_azimut(indNvoie(u));
+        MAT_POND_vs_h_freq =squeeze(MAT_POND_vs_azim_h_freq(indNvoie(u),:,:));
+        for v = 1 : length(vec_f_INT)
+            vec_pond = (MAT_POND_vs_h_freq(:,v)');
+            vec_sfft  = MAT_ffts_vs_f_h_INT_INT(v,:);
+            vec_sfft_FV(v) = sum(vec_pond.*vec_sfft);
+        end
+        FFT_S_FV_int = zeros(1,floor(LFFT_FV/2)+1);
+        FFT_S_FV_int(indi_f) = vec_sfft_FV;
+        FFT_S_FV = [ FFT_S_FV_int conj(fliplr(FFT_S_FV_int(2:length(FFT_S_FV_int)-1)))];
+        s_FV = ifft(FFT_S_FV);
+        MAT_s_FV_vs_t_voie(:,u)=s_FV;
+    end
+    
+    % Call COMP_STFT once to have matrix size an vrialbe name
+    t0=1;
+    [vec_temps_FV, vec_freq_FV, MAT_t_f_STFT_complexe, MAT_t_f_STFT_dB_FV] = COMP_STFT_snapshot(s_FV,t0-Ns/2*1/fe, fe, LFFT_spectro, REC, w_pond, fact_zp);
+    
+    
+    % calcul des spectrogrammes des voies
+    vec_freq_FV1 =(0:1:LFFT_spectro*fact_zp-1)*fe/(LFFT_spectro*fact_zp);
+    indi_fV = find( ((vec_freq_FV1>= fmin_int)&(vec_freq_FV1 <= fmax_int)));
+    MAT_S_FV_vs_voie_t_f = zeros(Nvoie,length(vec_temps_FV),length(indi_fV));
+    for u = 1 : Nvoie
+        %     u
+        %     Nvoie
+        [vec_temps_FV, vec_freq_FV1, MAT_t_f_STFT_complexe, MAT_t_f_STFT_dB_FV] = COMP_STFT_snapshot(MAT_s_FV_vs_t_voie(:,u),t0-Ns/2*1/fe, fe, LFFT_spectro, REC, w_pond, fact_zp);
+        indi_fV = find( ((vec_freq_FV1>= fmin_int)&(vec_freq_FV1 <= fmax_int))); %% THAT WERD MUST CHECK THIS OUT!!!!!!!
+        MAT_S_FV_vs_voie_t_f(u,:,:)=MAT_t_f_STFT_dB_FV(:,indi_fV);
+        %
+    end
+    vec_freq_FV = vec_freq_FV1(indi_fV);
+    
+    
+    % Home bf
+    
+% spectrogram image parameters
+spgm.im.freqlims = [100 200];       % [Hz] frequency scale boundary limits
+spgm.im.clims = [30 70];           % [dB] C limite pcolor
+spgm.im.dur = Nsample/10000;%'all';                % [s or 'all'] figure duration
+spgm.im.ovlp = 50;                   % [%] image window overlap
+spgm.im.figvision = false  ;           % [true false] visiblity of figure before saveas jpf file
+spgm.im.movm = 100;                  % Movmean parameter for the first panel
+spgm.im.FontS = 14;                  % Image font Size
+% spectrogram window parameters
+spgm.win.dur = 0.18;          % [s] spectrogram window length duration
+spgm.win.ovlp = 90;                 % [%] spectrogram window overlap
+spgm.win.type = 'kaiser';
+spgm.win.opad = 4;                  % [s] spectrogram zero padding
+spgm.fs = audioInfo.Fs;
+spgm.im.ns = audioInfo.Ns;
+%spgm.im.ns = fix(spgm.im.dur*acinfo.SampleRate);
+%spgm.im.n = round(acinfo.TotalSamples/spgm.im.ns);
+spgm.win.ns = fix(spgm.win.dur*spgm.fs);
+spgm.win.wpond = kaiser(spgm.win.ns ,0.1102*(180-8.7));
+spgm.win.val = spgm.win.wpond*sqrt(spgm.win.ns/sum(spgm.win.wpond.^2)); %w_pond    
+spgm.win.novlp = fix(spgm.win.ovlp/100*spgm.win.ns);
+spgm.win.nfft = max(256,2^nextpow2(spgm.win.ns*10));
+spgm.im.fmin = 100;spgm.im.fmax = 200;
+
+    [reconFFT, timeV, freqV] = beamForming('MLB', MAT_s_vs_t_h_INT , vec_azim_nvoie * 180 / pi, spgm);
+    
+    %compSpectro(MAT_S_FV_vs_voie_t_f(7,:,:),vec_freq_FV,vec_temps_FV,reconFFT(7,:,:),timeV,freqV,spgm)
     
     % ------ Figure plot --------
     cmapBW = flipud(gray(128));
@@ -208,7 +283,7 @@ if any ( showFig == 5)
             ax(u).XTickLabel = []
         end
         
-        title(['V ' num2str(u) 'Az (°) ' num2str(floor(180/pi*vec_azim_nvoie(u)))])
+        title(['V ' num2str(u) 'Az (?) ' num2str(floor(180/pi*vec_azim_nvoie(u)))])
         caxis([Lmin Lmax])
         colormap jet
         %colormap(cmapBW)
@@ -242,7 +317,7 @@ if any ( showFig == 6)
     % fig5
     % Reconstruct the signla for many direction
     pas = 2;
-    indNVoie = indNvoie%indAziCible-(Nvoie/2)*pas+1:pas:indAziCible+(Nvoie/2)*pas;
+    indNVoie = indAziCible-(Nvoie/2)*pas+1:pas:indAziCible+(Nvoie/2)*pas;
     
     % initialize
     vec_azim_nvoie = [];
@@ -257,7 +332,7 @@ if any ( showFig == 6)
             vec_sfft  = MAT_ffts_vs_f_h_INT_INT(v,:);
             vec_sfft_FV(v) = sum(vec_pond.*vec_sfft);
         end
-        FFT_S_FV_int = zeros(1,floor(spec.Ns/2)+1);
+        FFT_S_FV_int = zeros(1,floor(LFFT_FV/2)+1);
         FFT_S_FV_int(indi_f) = vec_sfft_FV;
         FFT_S_FV = [ FFT_S_FV_int conj(fliplr(FFT_S_FV_int(2:length(FFT_S_FV_int)-1)))];
         s_FV = ifft(FFT_S_FV);
@@ -266,17 +341,17 @@ if any ( showFig == 6)
     
     % Call COMP_STFT once to have matrix size an vrialbe name
     t0=1;
-    [vec_temps_FV, vec_freq_FV, MAT_t_f_STFT_complexe, MAT_t_f_STFT_dB_FV] = COMP_STFT_snapshot(s_FV,t0-Ns/2*1/fe, fe, spec.winSz, spec.rec, spec.wpond, spec.zp);
+    [vec_temps_FV, vec_freq_FV, MAT_t_f_STFT_complexe, MAT_t_f_STFT_dB_FV] = COMP_STFT_snapshot(s_FV,t0-Ns/2*1/fe, fe, LFFT_spectro, REC, w_pond, fact_zp);
     
     
     % calcul des spectrogrammes des voies
-    vec_freq_FV1 =(0:1:spec.winSz*spec.zp-1)*fe/(spec.winSz*spec.zp);
+    vec_freq_FV1 =(0:1:LFFT_spectro*fact_zp-1)*fe/(LFFT_spectro*fact_zp);
     indi_fV = find( ((vec_freq_FV1>= fmin_int)&(vec_freq_FV1 <= fmax_int)));
     MAT_S_FV_vs_voie_t_f = zeros(Nvoie,length(vec_temps_FV),length(indi_fV));
     for u = 1 : Nvoie
         %     u
         %     Nvoie
-        [vec_temps_FV, vec_freq_FV1, MAT_t_f_STFT_complexe, MAT_t_f_STFT_dB_FV] = COMP_STFT_snapshot(MAT_s_FV_vs_t_voie(:,u),t0-Ns/2*1/fe, fe, spec.winSz, spec.rec, spec.wpond, spec.zp);
+        [vec_temps_FV, vec_freq_FV1, MAT_t_f_STFT_complexe, MAT_t_f_STFT_dB_FV] = COMP_STFT_snapshot(MAT_s_FV_vs_t_voie(:,u),t0-Ns/2*1/fe, fe, LFFT_spectro, REC, w_pond, fact_zp);
         indi_fV = find( ((vec_freq_FV1>= fmin_int)&(vec_freq_FV1 <= fmax_int)));
         MAT_S_FV_vs_voie_t_f(u,:,:)=MAT_t_f_STFT_dB_FV(:,indi_fV);
         %
@@ -314,7 +389,7 @@ if any ( showFig == 6)
             ax(u).XTickLabel = []
         end
         
-        title(['V ' num2str(u) 'Az (°) ' num2str(floor(180/pi*vec_azim_nvoie(u)))])
+        title(['V ' num2str(u) 'Az (?) ' num2str(floor(180/pi*vec_azim_nvoie(u)))])
         caxis([Lmin Lmax])
         colormap jet
         %colormap(cmapBW)
@@ -355,7 +430,7 @@ if any (showFig == 99 )
             vec_sfft  = MAT_ffts_vs_f_h_INT_INT(v,:);
             vec_sfft_FV(v) = sum(vec_pond.*vec_sfft);
         end
-        FFT_S_FV_int = zeros(1,floor(spec.Ns/2)+1);
+        FFT_S_FV_int = zeros(1,floor(LFFT_FV/2)+1);
         FFT_S_FV_int(indi_f) = vec_sfft_FV;
         FFT_S_FV = [ FFT_S_FV_int conj(fliplr(FFT_S_FV_int(2:length(FFT_S_FV_int)-1)))];
         s_FV = ifft(FFT_S_FV);
@@ -367,25 +442,21 @@ if any (showFig == 99 )
     
     % calcul des spectrogrammes des voies
     Nvoie = length(vec_azim_nvoie);
-    % ATTENITON À CETTE LIGNES!!!
-    vec_freq_FV1 =(0:1:spec.winSz*spec.zp-1)*fe/(spec.winSz*spec.zp);
+    vec_freq_FV1 =(0:1:LFFT_spectro*fact_zp-1)*fe/(LFFT_spectro*fact_zp);
     indi_f = find( ((vec_freq_FV1>= fmin_int)&(vec_freq_FV1 <= fmax_int)));
     MAT_S_FV_vs_voie_t_f = zeros(Nvoie,length(vec_temps_FV),length(indi_f));
     for u = 1 : Nvoie
         %     u
         %     Nvoie
-        [vec_temps_FV, vec_freq_FV1, MAT_t_f_STFT_complexe, MAT_t_f_STFT_dB_FV] = COMP_STFT_snapshot(MAT_s_FV_vs_t_voie(:,u),t0-Ns/2*1/fe, fe, spec.winSz, spec.rec, spec.wpond, spec.zp);
+        [vec_temps_FV, vec_freq_FV1, MAT_t_f_STFT_complexe, MAT_t_f_STFT_dB_FV] = COMP_STFT_snapshot(MAT_s_FV_vs_t_voie(:,u),t0-Ns/2*1/fe, fe, LFFT_spectro, REC, w_pond, fact_zp);
         indi_f = find( ((vec_freq_FV1>= fmin_int)&(vec_freq_FV1 <= fmax_int)));
-        if u==1
-           saveindi = indi_f; 
-        end
         MAT_S_FV_vs_voie_t_f(u,:,:)=MAT_t_f_STFT_dB_FV(:,indi_f);
         %
     end
     vec_freq_FV = vec_freq_FV1(indi_f);
     
     
-    % tracé des spectrogrammes
+    % trac? des spectrogrammes
     
     a =sqrt(Nvoie);
     if a == floor(a)
@@ -408,7 +479,7 @@ if any (showFig == 99 )
         ylim([fmin_int fmax_int])
         xlabel(' t (s)')
         ylabel(' f (Hz)')
-        title(['V ' num2str(u) 'Az (°) ' num2str(floor(180/pi*vec_azim_nvoie(u)))])
+        title(['V ' num2str(u) 'Az (?) ' num2str(floor(180/pi*vec_azim_nvoie(u)))])
         caxis([Lmin Lmax])
         colorbar
         colormap jet

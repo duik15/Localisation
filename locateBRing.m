@@ -26,7 +26,7 @@ nbF = length(fileList);
 % to those name plase do a ctrl+f and modify new name.
 spec.winSz = 2048;  % LFFT_spectro
 spec.rec = 0.9; % REC
-sepc.ovlp = 1-spec.rec;
+spec.ovlp = 1-spec.rec;
 spec.wpond = kaiser(spec.winSz ,0.1102*(180-8.7)); 
 spec.wpond = spec.wpond*sqrt(spec.winSz/sum(spec.wpond.^2)); %w_pond
 spec.zp =4; % fact_zp
@@ -88,6 +88,7 @@ for iFile =1:length(fileList)
     [MAT_s,fe, time_s, audioInfo] = readBring([folderIn fileList{iFile}], ptime(iFile),'duration',duraNs,'buffer',buffer,'power2',true);
     file_wav = fileList{iFile};     % file name alone
     spec.Fs = fe; spec.Ns =  audioInfo.Ns;
+    Ns = spec.Ns;
     
     
     % ------------------ BEAMFORMIGN -----------------------

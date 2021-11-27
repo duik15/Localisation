@@ -1,15 +1,16 @@
-function [reconFFT, timeV, freqVFr,recon ] = reconstruct(arrIDorMATPOND, matWav,azimut, spec, varargin)
+function [reconFFT, timeV, freqV, recon] = beamForming(arrIDorMATPOND, matWav,azimut, spgm ,varargin)
 %[recon, timeV, freqVFr ] = reconstruct(nbV,matPondahf, matFFT, azimut, freq, spec)
 % This fonction reconstruct signal il all different direction using all
 % chanel. So all signal reconstruct point in one direction of listening.
 % Input var: matPondahf = Ponderation matrix with indice (nbAzimut,nbMicro, nbFreq)
 %            matFFT     = matric of spectrogram (nbFreq, nbTimefft)
 %            azimut = vecteur of azimut
-%            spec =  sepctogram parameter
+%            spgm =  sepctogram parameter
+% spgm.im : 
 % Debug:
 %matPondahf = MAT_POND_vs_azim_h_freq;
 %matWav = wav.sdb;
-%azimutV = (0:nbV-1) * 360/nbV;
+%azimut = (0:nbV-1) * 360/nbV;
 %nbV = length(azimutV);
 
 %%
@@ -45,14 +46,14 @@ nbV = length(azimut);
 % Matrice of ponderation
 if ~exist('matPondahf')
     % Get the ponderation matric
-    matPondahf = makePond(arrID,azimut,Ns,spec.Fs,'fmin',spec.fmin,'fmax',spec.fmax);
+    matPondahf = makePond(arrID,azimut,spgm.im.ns,spgm.fs,'fmin',spgm.im.fmin,'fmax',spgm.im.fmax);
     %matPondahf = makePond(arrID,1:360,Ns,spec.Fs,'fmin',spec.fmin,'fmax',spec.fmax);
 end
 %% Create the fft of the signal
 
 % Create the frequence vecteur relate to FFT
-freq= (0:1:Ns-1)*spec.Fs/Ns;
-indF = find( (freq >= spec.fmin)&(freq <= spec.fmax));
+freq= (0:1:spgm.im.ns-1)*spgm.fs/spgm.im.ns;
+indF = find( (freq >= spgm.im.fmin)&(freq <= spgm.im.fmax));
 freqF = freq(indF);
 
 % Create matFFT with only freq needed
@@ -66,29 +67,31 @@ matFFT = matFFT2(indF,:); clear matFFT2;
 %% Recontruct wav signal and its FFT
 
 % Initialize
-recon=zeros(spec.Ns,nbV);
+recon=zeros(spgm.im.ns,nbV);
 for u = 1 : nbV
     % Initiate
     matFFTPond = zeros(1,floor(Ns/2)+1);
     % Calcul the fft for the direction and add those freq values to the null matrix
     matFFTPondSum = ( sum(matFFT .* squeeze(matPondahf(u,:,:))',2 ))';
-    
-    % Add the conj
     matFFTPond(indF) = matFFTPondSum;
+    % Add the conj
     matFFTPond2 = [ matFFTPond conj(fliplr(matFFTPond(2:length(matFFTPond)-1))) ];
-    %matFFTPondV(:,u) =  matFFTPond2';
+    
     % Reconstruct WAV % This matrice could be remove to save memory and
-    % time
     recon(:,u) = ifft(matFFTPond2);
     
     % Calcul of spectrogrammes associated with BF
-    [timeV, freqV, ~ , matFFTV_dB] = COMP_STFT_snapshot(recon(:,u),0, spec.Fs, spec.winSz, spec.rec, spec.wpond, spec.zp);
-    indFr = find( ((freqV>= spec.fmin)&(freqV <= spec.fmax)));
-    reconFFT(u,:,:)=matFFTV_dB(:,indFr);
+    %[~,freqFV,timeV,tmp] = spectrogram(recon(:,u),spgm.win.val,spgm.win.novlp,spgm.win.nfft,spgm.fs); 
+    %matFFTV_dB = 10*log10(tmp);
+    [timeV, freqFV, ~ , matFFTV_dB] = COMP_STFT_snapshot(matWav(:,1),0, spgm.fs, spgm.win.ns, spgm.win.ovlp/100, spgm.win.val, spgm.win.opad);
+    ok11= size(timeV)
+    ok22= size(freqFV)
+    % Keep only wanted frequency
+    indFV = find( ((freqFV>= spgm.im.fmin)&(freqFV <= spgm.im.fmax)));
+    reconFFT(u,:,:)=matFFTV_dB(indFV,:)';
+    
 end
-
-
-freqVFr = freqV(indFr);
+freqV = freqFV(indFV);
 
 %%
 if showFig ==1

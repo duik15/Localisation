@@ -1,20 +1,32 @@
 
 
 % ------ Figure plot --------
-figure(1)
+if spgm.im.figvision
+fig = figure(1);
+else
+fig= figure('visible','off');
+end
+
 sizeFont= 24;
-set(gcf, 'PaperPosition', [0 0 20 10]);    % can be bigger than screen
+set(fig, 'PaperPosition', [0 0 20 10]);    % can be bigger than screen
 
 % Creat meash grid
 meshNvoie = reshape(1:nbV,sp.nby,sp.nbx);
 
-for u = 1 :  nbV
+for u = 1 :  length(azimutV)
+    disp(['------------'  num2str(u) '-----------'])
     [sy,sx] = find(meshNvoie==u);
+    
     ax(u)=axes('position',sp.pos{sx,sy},'XGrid','off','XMinorGrid','off','FontSize',14,'Box','on','Layer','top');
+    
+    
     %subplot(nbSub,nbSub,u)
     %M =  (squeeze(recon(u,:,:)))';
-    pcolor(timeV + timeWin(1), freqV,(squeeze(reconFFT(u,:,:)))'); shading flat;
-    ylim([spec.fmin spec.fmax])
+    
+    %Plot
+    pcolor(timeV + timeWin(1), freqV,fliplr((squeeze(Pdb(u,:,:)))')); shading flat;
+    
+    ylim([spgm.im.fmin spgm.im.fmax])
     set(ax(u),'FontSize',14)
     if sx==1
         ylabel(' f (Hz)','FontSize',sizeFont)
@@ -35,16 +47,18 @@ for u = 1 :  nbV
         tt = title([ num2str(azimutV(u)) '$^{\circ}$'],'FontSize',sizeFont,'interpreter','latex');
         tt.Position = [ timeWin(end)+0.15*(timeWin(end)-timeWin(1))  (round(freqV(end)-freqV(1)))/2+freqV(1)-5 ];
     end
-    
-    caxis([spec.Lmin spec.Lmax])
+    clim2{u} = ax(u).CLim;
+    %caxis(spgm.im.clims)
+    caxis(spgm.im.clims)
     colormap jet
-    %colormap(cmapBW)
     grid on
-    set(gca,'layer','top','gridAlpha',0.5,'XMinorGrid','on','YMinorGrid','on','MinorGridAlpha',0.3,'XMinorTick','on','YMinorTick','on')
+    
+    set(ax(u),'layer','top','gridAlpha',0.5,'XMinorGrid','on','YMinorGrid','on','MinorGridAlpha',0.3,'XMinorTick','on','YMinorTick','on')
+    
 end
 
 % Title
-sgtitle([file{i} '  |  ' num2str(floor(timeWin(1))) ' s to ' num2str(ceil(timeWin(end))) ' s  |  File ' num2str(j) '/' num2str(spec.nbIm) ] ,'FontSize', sizeFont+4)
+sgtitle([file{ifile} '  |  ' num2str(floor(timeWin(1))) ' s to ' num2str(ceil(timeWin(end))) ' s  |  File ' num2str(j) '/' num2str(spgm.im.n) ] ,'FontSize', sizeFont+4,'interpreter','none')
 
 
 % Color bar
@@ -54,5 +68,5 @@ cb.Position = cbPos;
 ax(end).Position = sp.pos{end};
 ylabel(cb,'Power (dB)')
 
-print('-dpng','-r150',[folderOut 'BF_' file{i}(1:end-4) '_s' num2str(floor(timeWin(1))) '_e' num2str(ceil(timeWin(end))) '.png' ])
-
+print(fig,'-dpng','-r150',[folderOut 'BF_' file{ifile}(1:end-4) '_s' num2str(floor(timeWin(1))) '_e' num2str(ceil(timeWin(end))) '.png' ])
+close(fig)

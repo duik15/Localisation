@@ -15,23 +15,23 @@ clc
 clear all
 close all
 tic
-mem0 = memory;
+%mem0 = memory;
 %% Variables
 % enviroment variables
 arrID = 'AAV';
 mainCh = [4 10 15];    % Looking only one chanel to speed up everything
 %outName = 'aavLiveBoat_onlyTrackTime_Ns14_f150-200hz';
-%folderIn = ['~/Documents/MPO/BRing/Data/wav/' arrID '/']; % Local Mac folder
+folderIn = ['~/Documents/MPO/BRing/Data/wav/' arrID '/']; % Local Mac folder
 %folderOut = [folderIn '/' 'spectrogram/'];
-folderIn = ['E:\Bring_Dep_1\' arrID '\'];
+%folderIn = ['E:\Bring_Dep_1\' arrID '\'];
 folderOut = ['C:\Users\duquettek\Documents\BRing\results\' arrID '\spectro\']; %spectrogram'];
 
 saveflag = true;                   % [true or false]
 
 
 % Selecting file wanted
-%time2Load = datetime(2021,07,15,09,50,00);
-time2Load = datetime(2021,07,14,00,00,00):minutes(5):datetime(2021,07,14,02,00,00);
+time2Load = datetime(2021,07,15,18,05,00);
+%time2Load = datetime(2021,07,14,00,00,00):minutes(5):datetime(2021,07,14,02,00,00);
 
 % List file in the folderIn
 file = getWavName(time2Load,folderIn);
@@ -83,10 +83,10 @@ spgm.im.ns = fix(spgm.im.dur*acinfo.SampleRate);
 spgm.im.n = round(acinfo.TotalSamples/spgm.im.ns);
 
 % define spectrogram window
-win.ns = fix(spgm.win.dur*acf.fs);
-win.val = hanning(win.ns);
-win.novlp = fix(spgm.win.ovlp/100*win.ns);
-win.nfft = fix((spgm.win.dur+spgm.win.opad)*acf.fs);
+win2.ns = fix(spgm.win.dur*acf.fs);
+win2.val = hanning(win.ns);
+win2.novlp = fix(spgm.win.ovlp/100*win.ns);
+win2.nfft = fix((spgm.win.dur+spgm.win.opad)*acf.fs);
 
 %% process
 tic
@@ -102,15 +102,15 @@ for i_file = 1:length(file)
     %time =  timeFile + seconds((1:acinfo.TotalSamples)/acinfo.SampleRate ) ;
     %time = timeFile + seconds(it);
     if i_file ==2
-        mem2 = memory;
+    %    mem2 = memory;
     elseif i_file == 5
-        mem5 =  memory;
+    %    mem5 =  memory;
     elseif i_file ==20
-        mem20=memory;
+    %    mem20=memory;
     end    
     
     % Loop on short
-    for j=1:spgm.im.n %j=1:spgm.im.n
+    for j=1%:spgm.im.n %j=1:spgm.im.n
         disp(['Inter no: ' num2str(j)])
         if j == spgm.im.n
             (j-1)*spgm.im.dur * acinfo.SampleRate+1 : j*spgm.im.dur * acinfo.SampleRate;
@@ -127,7 +127,10 @@ for i_file = 1:length(file)
         
         % make spectrogram
         disp([datestr(datetime('now')) ' | Make spectrogram ']);
-        for i_ch=1:length(mainCh)
+        for i_ch=1%:length(mainCh)
+            val = win.val
+            novlp = win.novlp
+            mfft=win.nfft
             [~,F,T,P] = spectrogram(rec(:,i_ch),win.val,win.novlp,win.nfft,acf.fs);
             PdB(:,:,i_ch) = 10*log10(P);
         end

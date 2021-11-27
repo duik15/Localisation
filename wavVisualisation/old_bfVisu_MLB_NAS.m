@@ -1,4 +1,4 @@
-%% WAV to fig spectrogram
+%% WAV to fig beam formig spectrogramme
 %
 % DESCRIPTION:
 % Load audio file, make create a beamforming and convert fig in jpg file
@@ -8,7 +8,7 @@
 % UPDATES:
 % 2021-11-20        Kevin.duquette@dfo-mpo.gc.ca (KD)
 %
-%
+
 
 clc
 clear all
@@ -17,19 +17,19 @@ tic
 %mem0 = memory;
 %% Variables
 % enviroment variables
-arrID = 'AAV';
+arrID = 'MLB';
 %outName = 'aavLiveBoat_onlyTrackTime_Ns14_f150-200hz';
-folderIn = ['~/Documents/MPO/BRing/Data/wav/' arrID '/']; % Local Mac folder
-folderOut = [folderIn '/' 'beamFormingAll/'];
+%folderIn = ['~/Documents/MPO/BRing/Data/wav/' arrID '/']; % Local Mac folder
+%folderOut = [folderIn '/' 'beamFormingAll/'];
 outName = '';
-%folderIn = ['E:\Bring_Dep_1\' arrID '\'];
-%folderOut = ['C:\Users\duquettek\Documents\BRing\results\' arrID '\spectro\']; %spectrogram'];
+folderIn = ['\\169.254.116.24\usbshare2-2\Bring_Dep_2\' arrID '\']
+folderOut = ['Z:\DATA\missions\2021-07-27_IML_2021-016_BRings\results\' arrID '\beamForming\']; %spectrogram'];
 
 saveflag = false;                   % [true or false]
 
 % Selecting file wanted
-time2Load = datetime(2021,07,15,18,05,00);
-%time2Load = datetime(2021,07,14,00,00,00):minutes(5):datetime(2021,07,14,02,00,00);
+%time2Load = datetime(2021,07,15,18,05,00);
+time2Load = datetime(2021,08,04,00,00,00):minutes(5):datetime(2021,08,05,00,00,00);
 
 % Number of direction
 nbV =10;
@@ -48,7 +48,7 @@ file = getWavName(time2Load,folderIn);
 azimutV = arr.azimutMax(1):(arr.azimutMax(2)-arr.azimutMax(1))/nbV:arr.azimutMax(2);%(0:nbV-1) * (360 / nbV);
 
 if ~isfolder(folderOut); disp(['Creating output folder: ' folderOut]); mkdir(folderOut); end
-%%
+
 % Figure parameter
 sp.height=20; sp.width=40; sp.nbx=2; sp.nby=nbV/sp.nbx;
 sp.ledge=3; sp.redge=3.5; sp.tedge=2; sp.bedge=2;
@@ -56,7 +56,7 @@ sp.spacex=0.3; sp.spacey=0.3;
 %sp.fracy = [0.1 0.3 0.3 0.3];
 sp.pos=subplot2(sp);
 
-%% Spectrogramme and beamforming information
+% Spectrogramme and beamforming information
 % Spectro parameters
 % Modification of variables into a structure spec. If you get error related
 % to those name plase do a ctrl+f and modify new name.
@@ -81,27 +81,6 @@ nbIm =  spec.nbIm;
 %duraNs = Ns / 10000;
 c = 1475;    % Sound velocity
 
-% spectrogram image parameters
-%spgm.im.freqlims = [10 200];       % [Hz] frequency scale boundary limits
-%spgm.im.freqscale = 'linear';       % ['linear' or 'log'] frequency scale type
-%spgm.im.clims = [-120 0];           % [dB] C limite pcolor
-%spgm.im.lbwh = 'auto';              % [left, bottom, width, height or 'auto'] image size and location [800 500 188 179];
-%spgm.im.format = 'png';             % image output format 'png', 'jpg'
-%spgm.im.dur = 15;%'all';                % [s or 'all'] figure duration
-%spgm.im.ovlp = 0;                   % [%] image window overlap
-%spgm.im.link_axes = false;           % [true false] use fonction linkaxes
-%spgm.im.figvision = true  ;           % [true false] visiblity of figure before saveas jpf file
-%spgm.im.constrast = [1 1.2];        % Constrat the clims by [x x] between 0 and 1 caxis = caxis * [cont1 cont2]
-%spgm.im.movm = 100;                  % Movmean parameter for the first panel
-%spgm.im.FontS = 14;                  % Image font Size
-% spectrogram window parameters
-%spgm.win.dur = 2048/10000;                  % [s] spectrogram window length duration
-%spgm.win.ovlp = 50;                 % [%] spectrogram window overlap
-%spgm.win.type = 'hanning';
-%spgm.win.opad = 8;                  % [s] spectrogram zero padding
-
-
-
 
 %% Open the first
 
@@ -116,14 +95,6 @@ if strcmp(spec.dur,'all')
     spec.dur = acinfo.Duration;
 end
 
-%spgm.im.ns = fix(spgm.im.dur*acinfo.SampleRate);
-spec.nbSpec = round(acinfo.TotalSamples/spec.Ns);
-
-% define spectrogram window
-%win.ns = fix(spgm.win.dur*wav.fs);
-%win.val = hanning(win.ns);
-%win.novlp = fix(spgm.win.ovlp/100*win.ns);
-%win.nfft = fix((spgm.win.dur+spgm.win.opad)*wav.fs);
 
 %% process
 tic
@@ -131,41 +102,41 @@ tic
 matPondahf = makePond(arrID,azimutV,spec.Ns,spec.Fs,'fmin',spec.fmin,'fmax',spec.fmax);
 
 % Loop on file
-for i = 1%:length(file)
+for i = 1:length(file)
     % Read file
     %disp([datestr(datetime('now')) ' | Load file ' num2str(i) '/' num2str(length(file)) ' -> ' file{i}]);
-    fprintf([datestr(datetime('now')) ' | Load file ' num2str(i) '/' num2str(length(file)) ' -> ' file{i}]);
+    fprintf([datestr(datetime('now')) ' | Load file ' num2str(i) '/' num2str(length(file)) ' -> ' file{i} '...']);
     % Loop on windows
-    for j=1:3%:spgm.im.n %j=1:spgm.im.n
-        fprintf('%',1)
+    for j=1:nbIm
+        fprintf('%d.',j)
     
+        % Indice and time related
         ind2Read  = (j-1)*spec.dur * acinfo.SampleRate+1 : j*spec.dur * acinfo.SampleRate;
+        timeWin = ind2Read / acinfo.SampleRate;
         
+        % Load audio
         acinfo = audioinfo([folderIn file{i}]);
         [wav.s,wav.fs] = audioread([folderIn file{i}],[ind2Read(1) ind2Read(end)]);
         wav.ns = size(wav.s,1);
         wav.ch = size(wav.s,2);
-        % Some line from cedric
+        % Power conversion
         wav.sdb = 10^(-spec.SH/20)*10^(-spec.G/20)*spec.D* wav.s;
         
-        [reconFFT, timeV, freqV] = reconstruct(matPondahf, wav.sdb , azimutV, spec);
+        % Beamforming
+        [reconFFT, timeV, freqV] = beamForming(matPondahf, wav.sdb , azimutV, spec);
         
-        
-        timeWin = ind2Read / acinfo.SampleRate;
-        
-        
-        % Get the reconstruct spectrogram
-        disp([datestr(datetime('now')) ' | Make reconstruction ']);
-        
+        % Show Figure
         showBeamFormingVisu;
+        
+        % Save time statistic
         tictocPrint(i,j) = toc;
         close all
+        
     end
     
-    
+fprintf('\n')
 tictocFile(i) = toc;
 end
-disp('end')
 tictocScript = toc;
 
 % Statistic
@@ -173,6 +144,6 @@ totalIm = length(file) * nbIm;
 diffPrint=diff(tictocPrint);
 diffFile=diff(tictocFile);
 nowName = datestr(datetime('now'),'yyyymmddTHHMMSS');
-
-save([folderOut 'tictoc_' nowName '.mat'], 'file', 'nbIm','tictocPrint','tictocFile','tictocScript','totalIm','diffPrint','diffFile')
+% Print stats
+save([folderOut 'tictoc_' nowName '.mat'], 'file', 'nbIm','tictocPrint','tictocFile','tictocScript','totalIm','diffPrint','diffFile','nowName')
 

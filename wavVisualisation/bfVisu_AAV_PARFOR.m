@@ -21,7 +21,6 @@ arrID = 'AAV';
 outName = '';
 folderIn = ['\\169.254.116.24\usbshare2-2\Bring_Dep_1\' arrID '\']
 folderOut = ['Z:\DATA\missions\2021-07-27_IML_2021-016_BRings\results\' arrID '\beamForming\']; %spectrogram'];
-
 if ~isfolder(folderOut); disp(['Creating output folder: ' folderOut]); mkdir(folderOut); end
 
 % Time specification
@@ -57,6 +56,7 @@ sp.pos=subplot2(sp);
 pwConv.SH =-194;
 pwConv.G = 40;
 pwConv.D = 1;
+spgm.pwConv = pwConv;
 
 
 %% Automated parameter and variables
@@ -67,7 +67,7 @@ file = getWavName(time2Load,folderIn);
 [aPos arr]  = getArrInfo(arrID);
 
 % Create azimut vector
-%azimutV = arr.azimutMax(1):(arr.azimutMax(2)-arr.azimutMax(1))/nbV:arr.azimutMax(2);%(0:nbV-1) * (360 / nbV);
+%azimutV = arr.azimutMax(1):(arr.azimutMax(2)-arr.azimutMax(1))/nbV-1:arr.azimutMax(2);%(0:nbV-1) * (360 / nbV);
 azimutV = arr.azimutMax(1):20:arr.azimutMax(2);
 
 % Other variables needed
@@ -98,7 +98,7 @@ spgm.win.nfft = max(256,2^nextpow2(spgm.win.ns*10));
 
 %% process
 tic
-tictocFile(1) = toc;
+%tictocFile(1) = toc;
 % Get the ponderation matrice
 matPondahf = makePond(arrID,azimutV,spgm.im.ns,spgm.fs,'fmin',spgm.im.fmin,'fmax',spgm.im.fmax);
 
@@ -107,17 +107,38 @@ nowName = datestr(datetime('now'),'yyyymmddTHHMMSS');
 fileID = fopen([folderOut 'tictoc_' nowName '.txt'],'w');
 
 % Preallocate for parlop
-tictocFile = nan(1,length(file)+1);
-tictocPRint = nan(length(file),spgm.im.n);
+%tictocFile = nan(1,length(file)+1);
+%tictocPRint = nan(length(file),spgm.im.n);
 
 % Loop on file
-for ifile = 1:length(file)
+parfor ifile = 1:length(file)
     %disp([datestr(datetime('now')) ' | Load file ' num2str(i) '/' num2str(length(file)) ' -> ' file{i}]);
     fprintf([datestr(datetime('now')) ' | Load file ' num2str(ifile) '/' num2str(length(file)) ' -> ' file{ifile} '...']);
     
-    % Loop on windows
+loopOnWindows(ifile,file,spgm,sp,folderIn, folderOut,matPondahf,azimutV,nbV);
+    
+%fprintf('\n')
+%tictocFile(ifile+1) = toc;
+%fprintf(fileID,[datestr(datetime('now')) ' | ' num2str(tictocFile(ifile+1)-tictocFile(ifile)) ' s/file | Load file ' num2str(ifile) '/' num2str(length(file)) ' -> ' file{ifile} '...\n']);
+end
+
+tictocScript = toc;
+fclose(fileID);
+
+% Statistic
+totalIm = length(file) * spgm.im.n;
+%diffPrint=diff(tictocPrint);
+%diffFile=diff(tictocFile);
+
+% Print stats
+%save([folderOut 'tictoc_' nowName '.mat'], 'file', 'spgm','tictocPrint','tictocFile','tictocScript','totalIm','diffPrint','diffFile','nowName')
+
+
+function loopOnWindows(ifile,file,spgm,sp,folderIn,folderOut,matPondahf,azimutV,nbV)
+
+   % Loop on windows
     for j=1%:spgm.im.n
-        fprintf('%d.',j)
+        %fprintf('%d.',j)
     
         % Indice and time related
         ind2Read  = (j-1)*spgm.im.dur * spgm.fs+1 : j*spgm.im.dur * spgm.fs;
@@ -129,7 +150,7 @@ for ifile = 1:length(file)
         wav.ns = size(wav.s,1);
         wav.ch = size(wav.s,2);
         % Power conversion
-        wav.sdb = 10^(-pwConv.SH/20)*10^(-pwConv.G/20)*pwConv.D* wav.s;
+        wav.sdb = 10^(-spgm.pwConv.SH/20)*10^(-spgm.pwConv.G/20)*spgm.pwConv.D* wav.s;
         
         % Beamforming        
         [Pdb, timeV, freqV, reconWav] = beamForming(matPondahf, wav.sdb , azimutV, spgm,'specmethod','spectro');
@@ -141,24 +162,8 @@ for ifile = 1:length(file)
         showBeamFormingVisu;
         
         % Save time statistic
-        tictocPrint(ifile,j) = toc;
-        close all
+        %tictocPrint(ifile,j) = toc;
+        
         
     end
-    
-fprintf('\n')
-tictocFile(ifile+1) = toc;
-fprintf(fileID,[datestr(datetime('now')) ' | ' num2str(tictocFile(ifile+1)-tictocFile(ifile)) ' s/file | Load file ' num2str(ifile) '/' num2str(length(file)) ' -> ' file{ifile} '...\n']);
 end
-
-tictocScript = toc;
-fclose(fileID);
-
-% Statistic
-totalIm = length(file) * spgm.im.n;
-diffPrint=diff(tictocPrint);
-diffFile=diff(tictocFile);
-
-% Print stats
-save([folderOut 'tictoc_' nowName '.mat'], 'file', 'spgm','tictocPrint','tictocFile','tictocScript','totalIm','diffPrint','diffFile','nowName')
-
