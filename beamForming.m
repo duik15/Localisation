@@ -46,7 +46,7 @@ nbV = length(azimut);
 
 
 % Matrice of ponderation
-if ~exist('matPondahf')
+if ~exist('matPondahf') || size(matPondahf,2) ~= spgm.im.ns
     % Get the ponderation matric
     matPondahf = makePond(arrID,azimut,spgm.im.ns,spgm.fs,'fmin',spgm.im.fmin,'fmax',spgm.im.fmax);
     %matPondahf = makePond(arrID,1:360,Ns,spec.Fs,'fmin',spec.fmin,'fmax',spec.fmax);
