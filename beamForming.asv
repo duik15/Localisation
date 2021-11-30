@@ -69,13 +69,14 @@ matFFT = matFFT2(indF,:); clear matFFT2;
 %% Recontruct wav signal and its FFT
 
 % Initialize
-
+s1 = spgm.im.ns
+Ns
 if mod(spgm.im.ns,2) ==1
 spgm.im.ns = spgm.im.ns-1;
-matWav = matWav(1:end-1,:); 
+wavMat = wavMat(1:end-1,:); 
 end
 
-recon=zeros(spgm.im.ns,nbV);
+recon=zeros(,nbV);
 for u = 1 : nbV
     % Initiate
     matFFTPond = zeros(1,floor(Ns/2)+1);
@@ -86,9 +87,9 @@ for u = 1 : nbV
     matFFTPond2 = [ matFFTPond conj(fliplr(matFFTPond(2:length(matFFTPond)-1))) ];
     
     % Reconstruct WAV % This matrice could be remove to save memory and
-    %size(matFFTPond2)
-    %size(recon)
-    %size(ifft(matFFTPond2))
+    size(matFFTPond2)
+    size(recon)
+    size(ifft(matFFTPond2))
     recon(:,u) = ifft(matFFTPond2);
     
     % Calcul of spectrogrammes associated with BF

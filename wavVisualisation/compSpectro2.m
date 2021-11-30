@@ -47,9 +47,9 @@ for u=1:2
     
     %Plot
     if u==1
-    pcolor(t1, f1,fliplr(Pdb1)); shading flat;
+    pcolor(t1, f1,Pdb1'); shading flat;
     else
-        pcolor(t2, f2,fliplr(Pdb2)); shading flat;
+        pcolor(t2, f2,Pdb2'); shading flat;
     end
  
     ylim([spgm.im.fmin spgm.im.fmax])
@@ -72,7 +72,7 @@ for u=1:2
     if u==1
         caxis([30 70])
     else
-        caxis([40 80])
+        caxis([35 74])
     end
     
     
@@ -80,16 +80,18 @@ for u=1:2
     %colormap(cmapBW)
     grid on
     
+    % Color bar
+cbPos = [sp.pos{u}(1)+sp.pos{u}(3)+0.01 sp.pos{u}(2) 0.01 (sp.height/2 - sp.bedge - sp.tedge)/sp.height];%sp.pos{end}(4)*(sp.nby-1)+sp.pos{1}(4)+sp.spacey ];
+cb= colorbar;%('Position',cbPos);
+cb.Position = cbPos;
+ax(u).Position = sp.pos{u};
+ylabel(cb,'Power (dB)')
+    
 end  
 
 %sgtitle([file{i} '  |  ' num2str(floor(timeWin(1))) ' s to ' num2str(ceil(timeWin(end))) ' s  |  File ' num2str(j) '/' num2str(spec.nbIm) ] ,'FontSize', sizeFont+4)
 
-% Color bar
-cbPos = [sp.pos{end}(1)+sp.pos{end}(3)+0.01 sp.pos{end}(2) 0.01 (sp.height - sp.bedge - sp.tedge)/sp.height];%sp.pos{end}(4)*(sp.nby-1)+sp.pos{1}(4)+sp.spacey ];
-cb= colorbar;%('Position',cbPos);
-cb.Position = cbPos;
-ax(end).Position = sp.pos{end};
-ylabel(cb,'Power (dB)')
+
 
 if ~exist('outName')
     outName =['compareSpec.png' ];

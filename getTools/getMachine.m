@@ -5,8 +5,6 @@ function  machineName = getMachine(varargin)
 
 pwdname = pwd;
     
-
-
     if strcmp(pwdname(1:6), 'C:\Use')
         % Here are windows computer
         

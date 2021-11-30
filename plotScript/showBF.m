@@ -58,7 +58,7 @@ for u = 1 :  length(azimutV)
 end
 
 % Title
-sgtitle([file{ifile} '  |  ' num2str(floor(timeWin(1))) ' s to ' num2str(ceil(timeWin(end))) ' s  |  File ' num2str(j) '/' num2str(spgm.im.n) ] ,'FontSize', sizeFont+4,'interpreter','none')
+sgtitle([file{ifile} '  |  ' num2str(floor(timeWin(1))) ' s to ' num2str(ceil(timeWin(end))) ' s ' ] ,'FontSize', sizeFont+4,'interpreter','none')
 
 
 % Color bar

@@ -9,9 +9,7 @@ while ~isempty(varargin)
             case 'typeplot'
                  typePlot = varargin{2};
             case 'name'
-                nameSub = varargin{2};
-            case 'outname'
-                outName = varargin{2};
+                varargin
             otherwise
                 error(['Can''t understand property: ' varargin{1}])
         end
@@ -27,7 +25,7 @@ end
 % Compare two spectrogram
 sp.height=20; sp.width=40; sp.nbx=1; sp.nby=2;
 sp.ledge=3; sp.redge=3.5; sp.tedge=2; sp.bedge=2;
-sp.spacex=0.3; sp.spacey=0.7;
+sp.spacex=0.3; sp.spacey=0.3;
 %sp.fracy = [0.1 0.3 0.3 0.3];
 sp.pos=subplot2(sp);
 
@@ -47,11 +45,12 @@ for u=1:2
     
     %Plot
     if u==1
-    pcolor(t1, f1,fliplr(Pdb1)); shading flat;
+    pcolor(t1, f1,Pdb1'); shading flat;
     else
-        pcolor(t2, f2,fliplr(Pdb2)); shading flat;
+        pcolor(t2, f2,Pdb2'); shading flat;
     end
- 
+    spgm.im.fmin
+    spgm.im.fmax
     ylim([spgm.im.fmin spgm.im.fmax])
     set(ax(u),'FontSize',14)
     if sx==1
@@ -66,16 +65,9 @@ for u=1:2
         ax(u).XTickLabel = [];
     end
     
-    title(nameSub{u})
+    title()
     
-    %caxis(spgm.im.clims)
-    if u==1
-        caxis([30 70])
-    else
-        caxis([40 80])
-    end
-    
-    
+    caxis(spgm.im.clims)
     colormap jet
     %colormap(cmapBW)
     grid on
@@ -91,7 +83,4 @@ cb.Position = cbPos;
 ax(end).Position = sp.pos{end};
 ylabel(cb,'Power (dB)')
 
-if ~exist('outName')
-    outName =['compareSpec.png' ];
-end
-print('-dpng','-r150',outName)
+%print('-dpng','-r150',[folderOut 'debug_BF_' file{i}(1:end-4) '_s' num2str(floor(timeWin(1))) '_e' num2str(ceil(timeWin(end))) '.png' ])
