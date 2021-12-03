@@ -12,11 +12,11 @@ addpath(genpath('../'));
 openData = false;
 
 % Slected time
-ptime= datetime(2021,07,15,09,52,26);
+ptime= datetime(2021,08,04,00,52,50);
 
 % Path information : folderIn = wav folder / folderOut = figure output folder
-arrID = 'CLD';
-folderIn = ['F:\Bring_Dep_1\' arrID '\']; % Local Mac folder
+arrID = 'MLB';
+folderIn = ['\\169.254.116.24\usbshare2-2\Bring_Dep_2\' arrID '\']; % Local Mac folder
 [~, wavi] = getWavName(ptime, folderIn);
 outName = [arrID '_' wavi.wavID '_' datestr(ptime,'yyyymmddTHHMMSS')];%'MLB_1493_20210804T005254';
 folderOut = ['Z:\DATA\missions\2021-07-27_IML_2021-016_BRings\results\' arrID '\' outName '\'];

@@ -13,6 +13,9 @@
 
 % -------------- Fixed variables --------------------
 
+% Spectrop parameter
+
+
 % Loading file information
 [fileList, wavID] = getWavName(ptime, folderIn);
 wavInfo = audioinfo([folderIn fileList{1}]);
@@ -32,6 +35,8 @@ spec.wpond = spec.wpond*sqrt(spec.winSz/sum(spec.wpond.^2)); %w_pond
 spec.zp =4; % fact_zp
 spec.fmin = fmin_int;
 spec.fmax = fmax_int;
+spgm.im.fmin = fmin_int;
+spgm.im.fmax = fmax_int;
 
  % Length of wav in second to load
 duraNs = Ns / 10000;     
@@ -89,7 +94,8 @@ for iFile =1:length(fileList)
     file_wav = fileList{iFile};     % file name alone
     spec.Fs = fe; spec.Ns =  audioInfo.Ns;
     Ns = spec.Ns;
-    
+    spgm.im.ns = Ns;
+    spgm.fs = fe;
     
     % ------------------ BEAMFORMIGN -----------------------
     MAT_s_vs_t_h = 10^(-spec.SH/20)*10^(-spec.G/20)*spec.D*MAT_s;
@@ -176,14 +182,14 @@ for iFile =1:length(fileList)
     matEnergie(iFile, :) = Energie;
     
     % Printing figure
-    %showFigBring;
+    showFigBring;
     
 end % end loop on file
 
 
 
 % Show global figure
-%showGlobalFig;
+showGlobalFig;
 
 
 % Saving data

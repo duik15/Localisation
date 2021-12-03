@@ -237,7 +237,7 @@ spgm.win.nfft = max(256,2^nextpow2(spgm.win.ns*10));
             ax(u).XTickLabel = []
         end
         
-        title(['V ' num2str(u) 'Az (°) ' num2str(floor(azimutV(u)))])
+        title(['V ' num2str(u) 'Az (°) ' num2str(floor(180/pi*azimutV(u)))])
         caxis(spgm.im.clims)
         colormap jet
         %colormap(cmapBW)
@@ -303,7 +303,7 @@ spgm.win.nfft = max(256,2^nextpow2(spgm.win.ns*10));
     
     % ------ Figure plot --------
     cmapBW = flipud(gray(128));
-    figure(6)
+    figure(5)
     set(gcf, 'PaperUnits', 'centimeters');
     set(gcf, 'PaperSize', [sp.width sp.height]);
     set(gcf, 'PaperPositionMode', 'manual');
@@ -329,7 +329,7 @@ spgm.win.nfft = max(256,2^nextpow2(spgm.win.ns*10));
             ax(u).XTickLabel = []
         end
         
-        title(['V ' num2str(u) 'Az (°) ' num2str(floor(azimutV(u)))])
+        title(['V ' num2str(u) 'Az (°) ' num2str(floor(180/pi*azimutV(u)))])
         caxis(spgm.im.clims)
         colormap jet
         %colormap(cmapBW)
