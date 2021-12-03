@@ -43,10 +43,10 @@ spgm.im.figvision = true ;           % [true false] visiblity of figure before s
 spgm.im.movm = 100;                  % Movmean parameter for the first panel
 spgm.im.FontS = 14;                  % Image font Size
 % spectrogram window parameters
-spgm.win.dur = 0.18;          % [s] spectrogram window length duration
-spgm.win.ovlp = 90;                 % [%] spectrogram window overlap
+spgm.win.dur = 2048/10000;          % [s] spectrogram window length duration
+spgm.win.ovlp = 70;                 % [%] spectrogram window overlap
 spgm.win.type = 'kaiser';
-spgm.win.opad = 4;                  % [s] spectrogram zero padding
+spgm.win.opad = 2;                  % [s] spectrogram zero padding
 
 
 % Figure parameter
