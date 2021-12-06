@@ -1,4 +1,4 @@
-function [reconFFT, timeV, freqV, recon] = beamForming(arrIDorMATPOND, matWav,azimut, spgm ,varargin)
+function [reconFFT, timeV, freqV, recon, matFFT] = beamForming(arrIDorMATPOND, matWav,azimut, spgm ,varargin)
 %[recon, timeV, freqVFr ] = reconstruct(nbV,matPondahf, matFFT, azimut, freq, spec)
 % This fonction reconstruct signal il all different direction using all
 % chanel. So all signal reconstruct point in one direction of listening.
@@ -6,9 +6,8 @@ function [reconFFT, timeV, freqV, recon] = beamForming(arrIDorMATPOND, matWav,az
 %            matFFT     = matric of spectrogram (nbFreq, nbTimefft)
 %            azimut = vecteur of azimut
 %            spgm =  sepctogram parameter
-% spgm.im : 
+% WARNING : THERE A BUG IN THE WAV RECONSTRUCTION. NEED TO BE FIX.
 % Debug:
-%matPondahf = MAT_POND_vs_azim_h_freq;
 %matWav = wav.sdb;
 %azimut = (0:nbV-1) * 360/nbV;
 %nbV = length(azimutV);
@@ -100,6 +99,7 @@ for u = 1 : nbV
         indFV = find( ((freqFV>= spgm.im.fmin)&(freqFV <= spgm.im.fmax)));
         reconFFT(u,:,:)=matFFTV_dB(indFV,:)';
     elseif strcmp(specMethod ,'cedric')
+        disp('Using cedric method for spectrogram')
         % Calcul of spectrogrammes associated with BF
         [timeV, freqFV, ~ , matFFTV_dB] = COMP_STFT_snapshot(recon(:,u),0, spgm.fs, spgm.win.ns, spgm.win.ovlp/100, spgm.win.val, spgm.win.opad);
         indFV = find( ((freqFV>= spgm.im.fmin)&(freqFV <= spgm.im.fmax)));
@@ -110,6 +110,10 @@ for u = 1 : nbV
 end
 
 freqV = freqFV(indFV);
+
+% Flip the matrix because it need to be
+reconFFT = flipdim(reconFFT,2);
+
 
 %%
 %{

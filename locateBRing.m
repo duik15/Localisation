@@ -13,7 +13,10 @@
 
 % -------------- Fixed variables --------------------
 
-% Spectrop parameter
+% Spectrop parameter / tempo for running modif
+fmin_int =100;
+fmax_int = 200;
+Ns  = spgm.im.dur * 10000;
 
 
 % Loading file information
@@ -97,6 +100,17 @@ for iFile =1:length(fileList)
     spgm.im.ns = Ns;
     spgm.fs = fe;
     
+    % Spectrogram window parameter
+    spgm.win.ns = fix(spgm.win.dur*spgm.fs);
+    if strcmp(spgm.win.type , 'hanning')
+        spgm.win.val = hanning(win.ns);
+    elseif strcmp(spgm.win.type , 'kaiser')
+        spgm.win.wpond = kaiser(spgm.win.ns ,0.1102*(180-8.7));
+        spgm.win.val = spgm.win.wpond*sqrt(spgm.win.ns/sum(spgm.win.wpond.^2)); %w_pond
+    end
+    spgm.win.novlp = fix(spgm.win.ovlp/100*spgm.win.ns);
+    spgm.win.nfft = max(256,2^nextpow2(spgm.win.ns*10));
+
     % ------------------ BEAMFORMIGN -----------------------
     MAT_s_vs_t_h = 10^(-spec.SH/20)*10^(-spec.G/20)*spec.D*MAT_s;
     aa = size(MAT_s_vs_t_h);
@@ -108,6 +122,7 @@ for iFile =1:length(fileList)
     
     % visualisation spectrogramme channel 1
     [vec_temps, vec_freq, MAT_t_f_STFT_complexe, MAT_t_f_STFT_dB] = COMP_STFT_snapshot(MAT_s_vs_t_h(:,1),0, fe, spec.winSz, spec.rec, spec.wpond, spec.zp);
+    
     
     % focalisation sur 1 snapshot particulier
     MAT_s_vs_t_h_INT = MAT_s_vs_t_h;
@@ -148,7 +163,7 @@ for iFile =1:length(fileList)
         end
     end
     
-    
+
     % Goniométrie -------------------> Figure 2,3
     % To be recode with less variables
     Energie = nan(1,length(vec_azimut));
@@ -182,8 +197,7 @@ for iFile =1:length(fileList)
     matEnergie(iFile, :) = Energie;
     
     % Printing figure
-    showFigBring;
-    
+    save_showFig_211203;
 end % end loop on file
 
 

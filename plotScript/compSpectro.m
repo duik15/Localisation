@@ -1,5 +1,5 @@
 function compSpectro(Pdb1,t1,f1,Pdb2,t2,f2,spgm, varargin)
-
+close all
 while ~isempty(varargin)
         switch lower(varargin{1})
             case 'time'
@@ -47,9 +47,9 @@ for u=1:2
     
     %Plot
     if u==1
-    pcolor(t1, f1,fliplr(Pdb1)); shading flat;
+        pcolor(t1, f1,Pdb1); shading flat;
     else
-        pcolor(t2, f2,fliplr(Pdb2)); shading flat;
+        pcolor(t2, f2,Pdb2); shading flat;
     end
  
     ylim([spgm.im.fmin spgm.im.fmax])
@@ -66,15 +66,12 @@ for u=1:2
         ax(u).XTickLabel = [];
     end
     
+    if exist('nameSub')
     title(nameSub{u})
-    
-    %caxis(spgm.im.clims)
-    if u==1
-        caxis([30 70])
-    else
-        caxis([40 80])
     end
     
+    %caxis(spgm.im.clims)
+    caxis(spgm.im.clims)
     
     colormap jet
     %colormap(cmapBW)

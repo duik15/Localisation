@@ -5,7 +5,7 @@ function [Y,Fs,time,audioInfo] = readBring(fileName, time,  varargin)
 % Default parameter
 dura =15;
 buffer = 1;
-power2 = true;
+power2 = false;
 
 
 
@@ -14,6 +14,8 @@ while ~isempty(varargin)
     switch lower(varargin{1})
         case 'duration'
             dura = varargin{2};
+        case 'Ns'
+            Ns = varargin{2};
         case 'buffer'
             buffer = varargin{2};
         case 'power2'
@@ -30,18 +32,17 @@ ainfo = audioinfo(fileName);
 Fs = ainfo.SampleRate;
 %[Y,Fs] = audioread(fileName);
 
-% Check the power2 restriction
-if power2 == true
-   if floor(sqrt((dura) *Fs))
-      Nssq =  floor(sqrt((dura) *Fs)) +1;
-   else
-       Nssq = floor(sqrt((dura) *Fs));
-   end
-   Ns =  Nssq^2;
-   dura = Ns / Fs;
-else
+if ~exist('Ns')
     Ns = floor(dura * Fs);
 end
+
+% Check the power2 restriction
+if power2 == true
+    p = nextpow2(Ns);
+    Ns = 2.^p;
+    dura = Ns * Fs;
+end
+
 
 % Get the begiining of the file
 [filepath,name] = fileparts(fileName);
@@ -49,7 +50,7 @@ ftime = getFileTime(name);
 
 % Start and end time
 start = time - ftime;
-tstart = ftime + start;
+%tstart = ftime + start;
 istart = floor((seconds(start) - buffer) * Fs) ;
 iend = istart + Ns -1;
 
@@ -60,7 +61,7 @@ if istart > 0 && iend < ainfo.TotalSamples
 elseif istart < 0
    % Loading the first file
    [fileName2 wavID] = getWavName(time - seconds(dura), fileparts(fileName)); 
-   [Y1,Fs1] = audioread(fileName2,[ainfo.TotalSamples + istart ainfo.TotalSamples]);
+   [Y1,Fs1] = audioread(fileName2,[ainfo.TotalSamples+istart ainfo.TotalSamples]);
     
    [Y2,Fs2] = audioread(fileName,[0 iend]);
     

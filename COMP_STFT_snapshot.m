@@ -20,7 +20,6 @@ for u = 1 : length(vecteur_indice_centre) % on parcourt les snapshots
     fft_loc = fft(ss_loc.*w_pond,fact_zp*Lfft);
     fft_loc_int = fft_loc(indi_int);
     
-    size(fft_loc_int)
     if iscolumn(fft_loc_int)
         MAT_t_f_STFT_complexe(u,:)=fft_loc_int';
     else
