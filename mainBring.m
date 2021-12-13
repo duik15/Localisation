@@ -11,7 +11,6 @@
 %
 % last update 03/12/2021 by @kevDuquette
 
-
 % -------------- Fixed variables --------------------
 
 % Loading file information
@@ -22,27 +21,6 @@ nbF = length(fileList);
 % Array information
 [arrLoc, arr] = getArrInfo(arrID);
 
-% Spectro parameters
-% Modification of variables into a structure spec. If you get error related
-% to those name plase do a ctrl+f and modify new name.
-%spec.winSz = 2048;  % LFFT_spectro
-%spec.rec = 0.9; % REC
-%spec.ovlp = 1-spec.rec;
-%spec.wpond = kaiser(spec.winSz ,0.1102*(180-8.7)); 
-%spec.wpond = spec.wpond*sqrt(spec.winSz/sum(spec.wpond.^2)); %w_pond
-%spec.zp =4; % fact_zp
-%spec.fmin = fmin_int;
-%spec.fmax = fmax_int;
-%spgm.im.fmin = fmin_int;
-%spgm.im.fmax = fmax_int;
-
- % Length of wav in second to load
-%duraNs = Ns / 10000;     
-
-% Pcolor plot
-%spec.Lmin = 30; % Lmin
-%spec.Lmax = 70; % Lmax
-
 % Fix parameter
 nbAzimut = 360;      % Number of azimut for calcul
 azimut360 = linspace(0,360-360/nbAzimut,nbAzimut);
@@ -51,11 +29,6 @@ convPW.G = 40;
 convPW.D = 1;
 %duree_film = 60;
 c = 1475;           % Sound velocities
-
-
-% Creating a circle vecteur
-%xc =  arr.xh;
-%yc = arr.yh;
 
 %% File loop
 
@@ -73,15 +46,7 @@ for ifile=1:length(fileList)
     spgm.fs = wav.fs; spgm.ns =  audioInfo.Ns; spgm.im.ns= spgm.ns; spgm.im.dur = audioInfo.dura; 
     spgm = getSpgmWin(spgm);        % Get spectograme windows parameter 
    
-
-    % ------------------ BEAMFORMIGN -----------------------
-    wav.db =10^(-convPW.SH/20)*10^(-convPW.G/20)*convPW.D*wav.s;
-    %aa = size(wav.db);
-    %Nsample = aa(1,1);
-    %Nc =aa(1,2);
-    %Duree = (Nsample-1)*1/fe;
-    %time = (0:1:Nsample-1)*1/fe;
-    %t=time; % Need to be find and rename
+    wav.pa =10^(-convPW.SH/20)*10^(-convPW.G/20)*convPW.D*wav.s;
     
     % Get ponderation matrice
     matPondahf = makePond(arrID,azimut360,spgm.im.ns,spgm.fs,'fmin',spgm.im.fmin,'fmax',spgm.im.fmax);
@@ -99,9 +64,9 @@ for ifile=1:length(fileList)
     df = freq(2)-freq(1);
     
     % Create matFFT of each chanel with only freq needed
-    matFFT2 = nan(size(wav.db));
-    for ii = 1:size(wav.db,2)
-        matFFT2(:,ii) = fft(wav.db(:,ii));
+    matFFT2 = nan(size(wav.pa));
+    for ii = 1:size(wav.pa,2)
+        matFFT2(:,ii) = fft(wav.pa(:,ii));
     end
     matFFT = matFFT2(indF,:); clear matFFT2;
        
@@ -132,15 +97,13 @@ for ifile=1:length(fileList)
         
     angleA(ifile, : )  = pkloc;  % Angle of arrival with side lobe
     angleM(1,ifile)  = pkloc(1);  % Max angle of arrival
-
-   
+  
     % Keep the energie value in a matrix
     matEnergie(ifile, :) = Energie;
     
     % Printing figure
     showBring;
 end % end loop on file
-
 
 
 % Show global figure

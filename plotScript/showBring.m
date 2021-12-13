@@ -23,7 +23,7 @@ arrDiameter = 10;
 if any( showFig == 1 )
     
     % Get the spectogram of first chanel
-    [~,freq1,time1,tmp] = spectrogram(wav.db(:,1),spgm.win.val,spgm.win.novlp,spgm.win.nfft,spgm.fs);
+    [~,freq1,time1,tmp] = spectrogram(wav.pa(:,1),spgm.win.val,spgm.win.novlp,spgm.win.nfft,spgm.fs);
     Pdb1 = 10*log10(tmp);
     
     figure(1)
@@ -112,7 +112,7 @@ if any ( showFig == 4 )
     %[vec_temps_FV, vec_freq_FV, MAT_t_f_STFT_complexe, MAT_t_f_STFT_dB_FV] = COMP_STFT_snapshot(s_FV,t0-Ns/2*1/fe, fe, spec.winSz, spec.rec, spec.wpond, spec.zp);
     
     % Get spectro of cible
-    [PdbC, timeC, freqC,reconC] = beamForming(arrID, wav.db , angleM , spgm,'specmethod','spectro');
+    [PdbC, timeC, freqC,reconC] = beamForming(arrID, wav.pa , angleM , spgm,'specmethod','spectro');
     PdbC = squeeze(PdbC);
     
     disp('Wong time in figure4')
@@ -152,10 +152,8 @@ end
 
 
 
-
-
 %  -------------------------------------------------------------------
-% Figure 5 :  Spectogram N vois that cover 360 1 figure
+% Figure 5 :  Spectogram N voie that cover 360 1 figure
 % -----------------------------------------------------------------
 if any ( showFig == 5)
     
@@ -171,7 +169,7 @@ if any ( showFig == 5)
     azimutV = 0:360/((nbSub^2)-1):360;
     
     % Get the beamforming spectrogram
-    [Pdb, timeV, freqV] = beamForming(arrID, wav.db , azimutV, spgm,'specmethod','spectro');
+    [Pdb, timeV, freqV] = beamForming(arrID, wav.pa , azimutV, spgm,'specmethod','spectro');
     
     
     % ------ Figure plot --------
@@ -240,7 +238,7 @@ if any ( showFig == 6)
     azimutV = angleM - deltaA * Nvoie/2:deltaA:angleM + deltaA * Nvoie/2;
     
     % Get the beamforming spectrogram
-    [Pdb, timeV, freqV] = beamForming(arrID, wav.db , azimutV, spgm,'specmethod','spectro');
+    [Pdb, timeV, freqV] = beamForming(arrID, wav.pa , azimutV, spgm,'specmethod','spectro');
     
     %[recon, timeV, freqV] = beamForming(matPondahf, matFFT, azimut, freq, spec);
     

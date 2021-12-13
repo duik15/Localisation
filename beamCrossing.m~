@@ -1,12 +1,21 @@
-function loc = beamCrossing(arrID1,arrID2,a1,a2,varargin)
+%function [loc bc] = beamCrossing(arrID1,arrID2,a1,a2,varargin)
 % This script make a triangularization of two beam to find back to position
 %[loc] = beamCrossing(pos1,pos2,a1,a2,varargin)
 %https://www.mathworks.com/help/map/ref/polyxpoly.html
-
+% Need update
 % need to add incertainty
+% need to be able to send 2 datetime, find best angle for each and than beamcrossing
 % Last moif @ kevDuquette  3 nov 2021
+
+
+%debug:
+arrID1 = 'MLB';
+arrID2 = 'PRC';
+a1=100;
+a2=70;
+
 showFig = [1];
-folderOut = %['Z:\DATA\missions\2021-07-27_IML_2021-016_BRings\results\honguedo\'];
+folderOut = ['/Users/Administrator/Documents/MPO/BRing/Data/results/honguedo/'];%['Z:\DATA\missions\2021-07-27_IML_2021-016_BRings\results\honguedo\'];
 outName = [arrID1 '_' num2str(a1) 'deg_' arrID2 '_' num2str(a2) 'deg' ];
 mkdir2(folderOut)
 
@@ -42,36 +51,66 @@ lon2 = linspace(pos2(2),lon2m,1000);
 lat1 = linspace(pos1(1),lat1m,1000);
 lat2 = linspace(pos2(1),lat2m,1000);
 
-ok=1
-[loni,lati] = polyxpoly(lon1,lat1,lon2,lat2);
-ok=2
+[loni,lati] = polyxpoly2(lon1,lat1,lon2,lat2);
+
 loc = [lati, loni];
-%% Figure
-if any(showFig ==1)
-    
-    % Read bathymetry
-    if strcmp(getMachine,'dellKev')
-    load    C:\Users\duquettek\Documents\MATLAB\oceanographicTools\m_map\mmap_ex\GSL_bathy_500m.mat
-    load    C:\Users\duquettek\Documents\MATLAB\oceanographicTools\m_map\mmap_ex\gebco_colormap.dat
-    elseif strcmp(getMachine,'labo')
-    load T:\ALGORITHMES\mapTools\GSL_bathy_500m.mat
-    load T:\ALGORITHMES\mapTools\gebco_colormap.dat
-    else
-    load ~/Documents/MATLAB/Oceanographie/m_map/mmap_ex/GSL_bathy_500m.mat;
-    load ~/Documents/MATLAB/Oceanographie/m_map/mmap_ex/gebco_colormap.dat;
+
+%% Calcul incertitude zone
+da = [-1 1];
+ii=0;
+for i1 = 1:2
+    for i2 = 1:2
+        ii= ii+1;
+        [lon1m,lat1m, phi1] = m_fdist(pos1(2),pos1(1), a1 + da(i1), 100 *1000);
+        [lon2m,lat2m, phi2] = m_fdist(pos2(2),pos2(1), a2 + da(i2), 100 *1000);
+        
+        lon1m = lon1m - 360;
+        lon2m = lon2m -360;
+        
+        lon11 = linspace(pos1(2),lon1m,1000);
+        lon22 = linspace(pos2(2),lon2m,1000);
+        lat11 = linspace(pos1(1),lat1m,1000);
+        lat22 = linspace(pos2(1),lat2m,1000);
+
+        [londa(ii),latda(ii)] = polyxpoly2(lon11,lat11,lon22,lat22);        
+        
+        % SAving value for plot
+        if i2==1
+            lon1da(i1,:) = lon11; lat1da(i1,:) = lat11;
+        end
+        if i1==1
+            lon2da(i2,:) = lon22; lat2da(i2,:) = lat22;
+        end
+        
     end
-    
-    close all
+end
+
+% Change order so it turn in circle
+londa = londa([1 2 4 3]);
+latda = latda([1 2 4 3]);
+
+%% Find the limit of the zone to plot
+% Zone de la carte
+winSize = 0.3;
+
+if strcmp(arrID1,'PRC') || strcmp(arrID2,'PRC')
     % Zone de la carte
-    winSize = 0.3;
-    %winSize = 0.15;
-    %lon_min = -max(abs([pos1(:,2) pos2(:,2)])) - winSize;
-    %lon_max = -min(abs([pos1(:,2) pos2(:,2)])) + winSize ;
-    %lat_min =  min([pos1(:,1) pos2(:,1)]) -  winSize/2;
-    %lat_max =  max([pos1(:,1) pos2(:,1)]) + winSize/2;
+    lon_min = -64.4;
+    lon_max = -63.9;
+    lat_min =  48.4;
+    lat_max =  48.7;
+else strcmp(arrID1,'AAV') || strcmp(arrID2,'AAV')
     
-    %lon_min = -64.3;
-    %lon_max = -64;
+end
+%winSize = 0.15;
+%lon_min = -max(abs([pos1(:,2) pos2(:,2)])) - winSize;
+%lon_max = -min(abs([pos1(:,2) pos2(:,2)])) + winSize ;
+%lat_min =  min([pos1(:,1) pos2(:,1)]) -  winSize/2;
+%lat_max =  max([pos1(:,1) pos2(:,1)]) + winSize/2;
+
+%lon_min = -64.3;
+%lon_max = -64;
+%{
     dlon = abs(diff([pos1(2) pos2(2)]));
     dlat = abs(diff([pos1(1) pos2(1)]));
     dl = max([dlon dlat])
@@ -79,56 +118,78 @@ if any(showFig ==1)
     lon_max = max([pos1(2) pos2(2)]) + dlon/2;
     lat_min = min([pos1(1) pos2(1)]) - dlat/4;
     lat_max = max([pos1(1) pos2(1)]) + dlat/4;
+%}
+
+
+%% Figure
+%if any(showFig ==1)
+    close all
+    disp('Start')
+    % Load map
+    gsl = load([getDirectory('map') 'GSL_bathy_500m.mat']);
+    gebco = load([getDirectory('map') 'gebco_colormap.dat']);
+
+    
     % Les isobathes à contourer
-    isobath = [0:20:200];
+    isobath = [0:10:200];
     
-    % Dimensions de la figure sur papier (en cm)
-    paperwidth  = 12;
-    paperheight = 12;
+    fig = figure('Units', 'normalized', 'Position', [-1,0,0.8,1]);
+    set(fig, 'PaperPosition', [0 0 7 7]);    % can be bigger than screen
     
-    
-    figure(1)
-    clf
-    set(groot, 'defaultAxesTickLabelInterpreter','tex');
     m_proj('mercator', 'long',[lon_min lon_max],'lat',[lat_min lat_max]);
-    m_grid('box','fancy','fontsize',8,'linestyle','none','fontname','times');
-    %m_grid('box','fancy','fontsize',8,'linestyle','none','fontname','times','xticklabel',{'49°W'});
+    m_grid('fontsize',12,'linestyle','none');
     
     % Un beau colormap pour la bathymetrie qui vient de GEBCO
-    colormap(gebco_colormap);
+    colormap(gebco);
     
     hold on
-    m_contourf(LON,LAT,Z,isobath,'linestyle','none');
+    m_contourf(gsl.LON,gsl.LAT,gsl.Z,isobath,'linestyle','none');
+    
     % Information graphique
     c = colorbar('location','eastoutside');
-    %set(c,'Position',[0.2 0.2 0.4 0.02],'FontSize', 8, 'FontName','times','xAxisLocation','top');
     cpos = c.Position;
-    set(c, 'FontSize', 8, 'FontName','times')
+    set(c, 'FontSize', 12, 'FontName','times')
     ylabel(c,'Depth(m)')
-    %m_text(-69.7,46.9,'Depth (m)','FontSize', 8, 'FontName','times','HorizontalAlignment','center');
-    xlabel('Longitude', 'FontSize', 10, 'FontName','times')
-    ylabel('Latitude', 'FontSize', 10, 'FontName','times')
-    set (gca,'TicklabelInterpreter','tex')
     
-    m_gshhs_l('patch',[.7 .7 .7]); % coastlines
+    xlabel('Longitude', 'FontSize', 12, 'FontName','times')
+    ylabel('Latitude', 'FontSize', 12, 'FontName','times')
     
+    m_gshhs_f('patch',[.7 .7 .7]); % coastlines
     
+
     % Hydrophone location
+    % ------------ Plot points ----------------
     hc1 = m_plot(pos1(2),pos1(1),'ro','MarkerFaceColor','r','MarkerSize',7);
     hc2 = m_plot(pos2(2),pos2(1),'ro','MarkerFaceColor','r','MarkerSize',7);
     
     % Plot line crossing
-    l1 = m_plot(lon1,lat1,'-.k');
-    l2 = m_plot(lon2,lat2,'-.k');
+    %l1 = m_plot(lon1,lat1,'-.k');
+    %l2 = m_plot(lon2,lat2,'-.k');
+    
+ 
+   % Cone
+   for ii=1:2
+    m_plot(lon1da(ii,:), lat1da(ii,:),'--','color',0.3*[1 1 1])
+    m_plot(lon2da, lat2da(ii,:),'--','color',0.3*[1 1 1])
+   end
+    % Plot incertitude
+    %for ii=1:4
+    %    pda = m_plot(londa,latda,'ko','MarkerFaceColor','k','MarkerSize',4);
+    %end
+    % Plot zone
+    m_line([londa londa(1)],[latda latda(1)],'color',[0 0 0])
+    m_patch([londa(1,:) londa(1,:)],[latda(1,:) latda(1,:)],0.3)
+    
+    
     
     % Plot the retrieve point
     pp = m_plot(loni,lati,'ko','MarkerFaceColor','r','MarkerSize',7);
     
-    
+    %%
     % Legend
     %leg = m_legend([hc1,pp], 'Array1','Retreive signal')
     %leg.Position = [49,-64,10,4]
     %leg.Position = [49,5,25,3]
     
     print('-dpng', '-r300',[folderOut 'beamCrossing_' outName '.png']);
-end
+%end

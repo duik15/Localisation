@@ -10,14 +10,14 @@ arrID = 'MLB';
 
 % Selected time
 ptime= datetime(2021,08,04,00,52,51);
-%[ptime, ploc]  = getPingInfo(arrID); % Load ping information
-%ptime = ptime + seconds(7);          % Add an offset to be center the 5 upcalls
+[ptime, ploc]  = getPingInfo(arrID); % Load ping information
+ptime = ptime + seconds(7);          % Add an offset to be center the 5 upcalls
 %ptime = ptime(1);
 
 %folderIn = ['F:\Bring_Dep_1\' arrID '\']; % Local Mac folder
 folderIn = ['~/Documents/MPO/BRing/Data/wav/' arrID '/']; % Local Mac folder
 [~, wavi] = getWavName(ptime, folderIn);
-outName = ['noDB' arrID '_' wavi.wavID '_' datestr(ptime,'yyyymmddTHHMMSS')];%'MLB_1493_20210804T005254';
+outName = [arrID '_' wavi.wavID '_' datestr(ptime,'yyyymmddTHHMMSS')];%'MLB_1493_20210804T005254';
 folderOut = ['/Users/Administrator/Documents/MPO/BRing/Data/results/' arrID '/' outName '/' ];
 %folderOut = ['Z:\DATA\missions\2021-07-27_IML_2021-016_BRings\results\' arrID '\' outName '\'];
 %folderOut = ['C:\Users\duquettek\Documents\BRing\results\' arrID '\' outName '\'];
@@ -25,7 +25,7 @@ folderOut = ['/Users/Administrator/Documents/MPO/BRing/Data/results/' arrID '/' 
 %folderIn = ['Z:\DATA\missions\2021-07-27_IML_2021-016_BRings\wav\' arrID '\'];
 
 % Figure parameters
-showFig = [1 2 3 4 5 6];       % Figure number to print
+showFig = [0];       % Figure number to print
 saveData = false;   % Save result to .mat
 printFig = true;    % Saving figure to a folder
 nbPk = 4 ;          % Nomber of side lobe to keep
@@ -49,8 +49,6 @@ spgm.im.clims = [30 80];           % [dB] C limite pcolor
 spgm.im.dur = imDur;%'all';         % [s or 'all'] figure duration
 %spgm.im.ovlp = 50;                 % [%] image window overlap
 spgm.im.figvision = true ;          % [true false] visiblity of figure before saveas jpf file
-%spgm.im.movm = 100;                % Movmean parameter for the first panel
-%spgm.im.FontS = 14;                % Image font Size
 % spectrogram window parameters
 spgm.win.dur = 2048/10000;          % [s] spectrogram window length duration
 spgm.win.ovlp = 90;                 % [%] spectrogram window overlap

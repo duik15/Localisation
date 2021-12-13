@@ -1,4 +1,4 @@
-function [ positions ] = subplot2(varargin)
+function [ positions, meshgrid2] = subplot2(varargin)
 %Return postion of subplot with more option tahtn subplot
 %sub_pos=subplot2(nbx,nby,varargin);
 %sub_pos=subplot2(sp,varargin); Where sp is a structure with the option
@@ -6,7 +6,10 @@ function [ positions ] = subplot2(varargin)
 % List of options: height, width, spacex, spacey, fracy = [0.2 0.8],
 % fracx,ledge,redge,bedge,tedge
 
+
 %% Varagin
+
+meshOrder = 'y';
 while ~isempty(varargin)
     if isstruct(varargin{1})
         sp = varargin{1};
@@ -29,6 +32,8 @@ while ~isempty(varargin)
                 sp.fracy=  varargin{2};
             case 'fracx'
                 sp.fracx=  varargin{2};
+            case 'meshorder'
+                meshOrder = varargin{2};
             otherwise
                 error(['Can''t understand property: ' varargin{1}])
         end
@@ -90,7 +95,12 @@ for i=1:sp.nbx
 end
 
 
-
+% Meshgrid for incrematation
+if meshOrder == 'y'
+meshgrid2 = reshape(1:sp.nbx*sp.nby,sp.nbx,sp.nby);
+else
+    meshgrid2 = reshape(1:sp.nbx*sp.nby,sp.nby,sp.nbx)';
+end
 
 %{
 % Save

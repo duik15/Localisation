@@ -68,7 +68,15 @@ switch lower(id)
             case 'labo'
                 dirPath = ['\\169.254.47.215\usbshare1-2\Bring_Dep_2\']
         end
-
+    case 'map'
+        switch lower(machineID)
+            case 'dellkev'
+                dirPath = 'T:\ALGORITHMES\mapTools\' ;
+            case 'mac'
+                dirPath = 'Documents/MATLAB/Oceanographie/m_map/mmap_ex/';
+            case 'labo'
+                %dirPath = ['\\169.254.47.215\usbshare1-2\Bring_Dep_2\']
+        end
 otherwise
     error('Can''t understand the ID in getDirectory. See help getDirectory.')
 end
