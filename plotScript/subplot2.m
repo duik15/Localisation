@@ -97,9 +97,9 @@ end
 
 % Meshgrid for incrematation
 if meshOrder == 'y'
-meshgrid2 = reshape(1:sp.nbx*sp.nby,sp.nbx,sp.nby);
+meshgrid2 = reshape(1:sp.nbx*sp.nby,sp.nbx,sp.nby)';
 else
-    meshgrid2 = reshape(1:sp.nbx*sp.nby,sp.nby,sp.nbx)';
+    meshgrid2 = reshape(1:sp.nbx*sp.nby,sp.nby,sp.nbx);
 end
 
 %{

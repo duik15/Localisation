@@ -35,7 +35,7 @@ else
     % This function return time and date associated with a file
     splitName = split(fileName, '_');
     dateString = splitName{cellNumber};
-    
+
     dateN = datenum(dateString,formatIn);
     dateT = datetime(dateN,'ConvertFrom', 'datenum');
 end

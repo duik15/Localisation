@@ -9,17 +9,19 @@ close all
 arrID = 'MLB';
 
 % Selected time
-ptime= datetime(2021,08,04,00,52,46);
+%ptime= datetime(2021,08,04,00,52,46);
+ptime= datetime(2021,08,01,14,32,00);
 %[ptime, ploc]  = getPingInfo(arrID); % Load ping information
 %ptime = ptime + seconds(7);          % Add an offset to be center the 5 upcalls
 %ptime = ptime(1);
 
 %folderIn = ['F:\Bring_Dep_1\' arrID '\']; % Local Mac folder
-folderIn = ['~/Documents/MPO/BRing/Data/wav/' arrID '/']; % Local Mac folder
+%folderIn = ['~/Documents/MPO/BRing/Data/wav/' arrID '/']; % Local Mac folder
+folderIn = ['Z:\DATA\missions\2021-07-27_IML_2021-016_BRings\wav\' arrID '\'];
 [~, wavi] = getWavName(ptime, folderIn);
 outName = [arrID '_' wavi.wavID '_' datestr(ptime,'yyyymmddTHHMMSS') '_rappportTech_15sec'];%'MLB_1493_20210804T005254';
-folderOut = ['/Users/Administrator/Documents/MPO/BRing/Data/results/' arrID '/' outName '/' ];
-%folderOut = ['Z:\DATA\missions\2021-07-27_IML_2021-016_BRings\results\' arrID '\' outName '\'];
+%folderOut = ['/Users/Administrator/Documents/MPO/BRing/Data/results/' arrID '/' outName '/' ];
+folderOut = ['Z:\DATA\missions\2021-07-27_IML_2021-016_BRings\results\' arrID '\' outName '\'];
 %folderOut = ['C:\Users\duquettek\Documents\BRing\results\' arrID '\' outName '\'];
 %pingFolder = ['/Users/Administrator/Documents/MPO/BRing/Data/results/' arrID '/prcCircle_Ns14_f150-200hz/'];
 %folderIn = ['Z:\DATA\missions\2021-07-27_IML_2021-016_BRings\wav\' arrID '\'];
