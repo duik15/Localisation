@@ -9,15 +9,15 @@ close all
 arrID = 'MLB';
 
 % Selected time
-ptime= datetime(2021,08,04,00,52,51);
-[ptime, ploc]  = getPingInfo(arrID); % Load ping information
-ptime = ptime + seconds(7);          % Add an offset to be center the 5 upcalls
+ptime= datetime(2021,08,04,00,52,46);
+%[ptime, ploc]  = getPingInfo(arrID); % Load ping information
+%ptime = ptime + seconds(7);          % Add an offset to be center the 5 upcalls
 %ptime = ptime(1);
 
 %folderIn = ['F:\Bring_Dep_1\' arrID '\']; % Local Mac folder
 folderIn = ['~/Documents/MPO/BRing/Data/wav/' arrID '/']; % Local Mac folder
 [~, wavi] = getWavName(ptime, folderIn);
-outName = [arrID '_' wavi.wavID '_' datestr(ptime,'yyyymmddTHHMMSS')];%'MLB_1493_20210804T005254';
+outName = [arrID '_' wavi.wavID '_' datestr(ptime,'yyyymmddTHHMMSS') '_15secExplore'];%'MLB_1493_20210804T005254';
 folderOut = ['/Users/Administrator/Documents/MPO/BRing/Data/results/' arrID '/' outName '/' ];
 %folderOut = ['Z:\DATA\missions\2021-07-27_IML_2021-016_BRings\results\' arrID '\' outName '\'];
 %folderOut = ['C:\Users\duquettek\Documents\BRing\results\' arrID '\' outName '\'];
@@ -25,7 +25,7 @@ folderOut = ['/Users/Administrator/Documents/MPO/BRing/Data/results/' arrID '/' 
 %folderIn = ['Z:\DATA\missions\2021-07-27_IML_2021-016_BRings\wav\' arrID '\'];
 
 % Figure parameters
-showFig = [0];       % Figure number to print
+showFig = [1 2 3 4 5 6];       % Figure number to print
 saveData = false;   % Save result to .mat
 printFig = true;    % Saving figure to a folder
 nbPk = 4 ;          % Nomber of side lobe to keep
@@ -33,8 +33,8 @@ aziCible =  'max';        % 'max' of value from 0 - 360. The azimut wanted for r
 
 % Reading parameters
 openData = false; % Need to run data or just open it a .mat
-imDur = 2;%2^15 %+ (0.4 * 10000);              % Total number of sample
-buffer = 0.5;             % Time in second to add before the ptime
+imDur = 15;%2^15 %+ (0.4 * 10000);              % Total number of sample
+buffer = 0;             % Time in second to add before the ptime
 
 % Get the real angle and distance from center
 arrLoc = getArrInfo(arrID);

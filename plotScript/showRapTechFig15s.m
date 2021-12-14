@@ -7,15 +7,14 @@ close all
 arrID = 'MLB';
 
 % Selected time
-%ptime= datetime(2021,08,04,00,52,46);
 time= datetime(2021,08,04,00,52,46);
 
 %folderIn = ['F:\Bring_Dep_1\' arrID '\']; % Local Mac folder
 %folderIn = ['~/Documents/MPO/BRing/Data/wav/' arrID '/']; % Local Mac folder
-%folderIn = ['Z:\DATA\missions\2021-07-27_IML_2021-016_BRings\wav\' arrID '\'];
-folderIn = ['C:\Users\duquettek\Documents\BRing\Data\wav\' arrID '\'];
+folderIn = ['Z:\DATA\missions\2021-07-27_IML_2021-016_BRings\wav\' arrID '\'];
+%folderIn = ['C:\Users\duquettek\Documents\BRing\Data\wav\' arrID '\'];
 [~, wavi] = getWavName(time, folderIn);
-outName = [arrID '_' wavi.wavID '_' datestr(time,'yyyymmddTHHMMSS') '_rappportTech_15sec'];%'MLB_1493_20210804T005254';
+outName = [arrID '_' wavi.wavID '_' datestr(time,'yyyymmddTHHMMSS') '_rapTech15s'];%'MLB_1493_20210804T005254';
 %folderOut = ['/Users/Administrator/Documents/MPO/BRing/Data/results/' arrID '/' outName '/' ];
 folderOut = ['Z:\DATA\missions\2021-07-27_IML_2021-016_BRings\results\' arrID '\' outName '\'];
 %folderOut = ['C:\Users\duquettek\Documents\BRing\results\' arrID '\' outName '\'];
@@ -49,8 +48,8 @@ wav.pa =10^(-convPW.SH/20)*10^(-convPW.G/20)*convPW.D*wav.s;
 
 
 % spectrogram image parameters
-spgm.im.freqlims = [100 200];       % [Hz] frequency scale boundary limits
-spgm.im.clims = [30 80];           % [dB] C limite pcolor
+spgm.im.freqlims = [90 220];       % [Hz] frequency scale boundary limits
+spgm.im.clims = [30 90];           % [dB] C limite pcolor
 spgm.im.dur = imDur;%'all';         % [s or 'all'] figure duration
 %spgm.im.ovlp = 50;                 % [%] image window overlap
 spgm.im.figvision = true ;          % [true false] visiblity of figure before saveas jpf file
@@ -67,28 +66,34 @@ spgm = getSpgmWin(spgm);        % Get spectograme windows parameter
 %%
 sp.height=30; sp.width=30; sp.nbx=1; sp.nby=2;
 sp.ledge=4; sp.redge=6; sp.tedge=3; sp.bedge=3;
-sp.spacex=0.5; sp.spacey=1;
+sp.spacex=0.5; sp.spacey=0.3;
 sp.fracy=[0.1 0.9];
 [sp.pos, mesh2]=subplot2(sp,'meshorder','x');
 
 
-i_ch = 1;
-    
+%i_ch = 1;
+ for i_ch =1 : size(wav.pa,2) 
+     close all
+     disp(['Printing with amp ' num2str(i_ch) '/' num2str(size(wav.pa,2) ) ])
+     
     [~,freq1,time1,tmp] = spectrogram(wav.pa(:,i_ch),spgm.win.val,spgm.win.novlp,spgm.win.nfft,spgm.fs);
     Pdb1 = 10*log10(tmp);
     
     figure(1)
     ax(1)=axes('position',sp.pos{1,1},'Box','on','Layer','top');
     plot(time_s,wav.s(:,i_ch),'k')
+    ylabel('Amp.')
+    ax(1).XTickLabel = [];
     %title(['Azimut ' num2str(azimut360(indAziCible)) '°'])
     
     ax(2)=axes('position',sp.pos{1,2},'Box','on','Layer','top');
+    
     pcolor(time1, freq1,Pdb1); shading flat;
     ylim([spgm.im.freqlims])
     xlabel(' t (s)')
     ylabel(' f (Hz)')
     caxis(spgm.im.clims)
-    
+    set(ax(2),'Box','on','Layer','top');
     %caxis([Lmin Lmax])
     colormap jet
     
@@ -99,12 +104,49 @@ i_ch = 1;
     tmppos = ax(2).Position;
     cb = colorbar;
     ax(2).Position = tmppos;
-    ylabel(cb,'Power (dB)')
+    cb.Position(3) = 0.01;
+    ylabel(cb,'PSD (dB re. 1µPa2/Hz)')
     
+    print('-dpng','-r150',[folderOut 'showWavChanelsAmp_' outName '_ch' num2str(i_ch) '.png'])
+ end    
+
+%% No amp
+clear ax
+%i_ch = 1;
+ for i_ch =1 : size(wav.pa,2)   
+     close all
+     disp(['Printing no amp ' num2str(i_ch) '/' num2str(size(wav.pa,2) ) ])
+     
+    [~,freq1,time1,tmp] = spectrogram(wav.pa(:,i_ch),spgm.win.val,spgm.win.novlp,spgm.win.nfft,spgm.fs);
+    Pdb1 = 10*log10(tmp);
     
+    figure(1)
+    pcolor(time1, freq1,Pdb1); shading flat;
+    ylim([spgm.im.freqlims])
+    xlabel(' t (s)')
+    ylabel(' f (Hz)')
+    caxis(spgm.im.clims)
+    %caxis([30 90])
+    ax = gca;
+    set(ax,'Box','on','Layer','top');
+    %caxis([Lmin Lmax])
+    colormap jet
     
+   
+    
+    % Colorbar
+    tmppos = ax(1).Position;
+    cb = colorbar;
+    ax(1).Position = tmppos;
+    cb.Position(3) = 0.01;
+    ylabel(cb,'PSD (dB re. 1µPa2/Hz)')
+    
+    print('-dpng','-r150',[folderOut 'showWavChanels_' outName '_ch' num2str(i_ch) '_caxis30-90.png'])
+ end    
+
 
 %%
+%{
 % Get the spectogram of first chanel
     [~,freq1,time1,tmp] = spectrogram(wav.pa(:,1),spgm.win.val,spgm.win.novlp,spgm.win.nfft,spgm.fs);
     Pdb1 = 10*log10(tmp);
@@ -120,3 +162,4 @@ i_ch = 1;
     caxis(spgm.im.clims)
     cb = colorbar;
     ylabel(cb,'Power (dB)')
+%}

@@ -19,7 +19,7 @@ Y = [];
 Fs = 10000;
 dura = 15;
 showFig = 2;
-time = ptime;
+time = datetime(2021,08,04,00,52,46);
 %% Varagin
 while ~isempty(varargin)
         switch lower(varargin{1})
