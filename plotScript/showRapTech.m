@@ -16,6 +16,8 @@ sp.spacex=0.5; sp.spacey=1;
 nbSP = sp.nbx * sp.nby;
 fontS = 12;
 
+i_ch = 1:2:2*nbSP;
+
 for ii=1:nbSP
     [~,freq,time,tmp] = spectrogram(wav.pa(:,i_ch(ii)),spgm.win.val,spgm.win.novlp,spgm.win.nfft,spgm.fs);
     if ii==1; PSD2 = nan([nbSP size(tmp)]) ; end
@@ -29,7 +31,6 @@ set(fig, 'PaperUnits', 'centimeters');
 set(fig, 'PaperSize', [sp.width sp.height]);
 set(fig, 'PaperPositionMode', 'manual');
 
-i_ch = 1:2:2*nbSP;
 for ii=1:nbSP
     [sx,sy] = find(mesh2'==ii);
     % Get the spectogram of first chanel
@@ -47,7 +48,7 @@ for ii=1:nbSP
     
     
     % Text and label
-    text(time(end) - 0.22 , spgm.im.freqlims(2) * 0.93,['ch.' num2str(i_ch(ii))], 'backgroundcolor', [1 1 1],'margin',2)
+    text(1.55 , spgm.im.freqlims(2) * 0.93,['ch.' num2str(i_ch(ii))], 'backgroundcolor', [1 1 1],'margin',2)
     %text(timeP(end) *1.02 , spgm.im.freqlims(2)/2 + 5,['ch.'])
     %text(timeP(end) *1.02 , spgm.im.freqlims(2)/2-5,[num2str(mainCh(ii))])
     if sx == 1
@@ -56,7 +57,7 @@ for ii=1:nbSP
         ax(ii).YTickLabel = [];
     end
     if sy == sp.nby
-        xl = xlabel('Time (s)','FontSize',fontS) ;
+        xl = xlabel('t (s)','FontSize',fontS) ;
     else
         ax(ii).XTickLabel = [];
     end
@@ -67,11 +68,12 @@ end
 cbPos = [sp.pos{sx,sy}(1)+sp.pos{sx,sy}(3)+0.01 sp.pos{sx,sy}(2) 0.02 (sp.height - sp.bedge - sp.tedge)/sp.height];%sp.pos{end}(4)*(sp.nby-1)+sp.pos{1}(4)+sp.spacey ];
 cb= colorbar;%('Position',cbPos);
 cb.Position = cbPos;
+cb.Position(3) = 0.01;
 %ax(end).Position = sp.pos{end};
-ylabel(cb,'Power Spectrum Density (dB)')
+ylabel(cb,'PSD (dB re. 1µPa^2/Hz)')
 
 % General text and label
-sgtitle([arrID ' | ' datestr(ptime)],'Interpreter','none');
+%sgtitle([arrID ' | ' datestr(ptime)],'Interpreter','none');
 
 print('-dpng','-r150',[folderOut 'fig1_rapTech_showChanels.png'])
 

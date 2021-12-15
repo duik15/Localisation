@@ -11,17 +11,19 @@ time= datetime(2021,08,04,00,52,46);
 
 %folderIn = ['F:\Bring_Dep_1\' arrID '\']; % Local Mac folder
 %folderIn = ['~/Documents/MPO/BRing/Data/wav/' arrID '/']; % Local Mac folder
-folderIn = ['Z:\DATA\missions\2021-07-27_IML_2021-016_BRings\wav\' arrID '\'];
+%folderIn = ['Z:\DATA\missions\2021-07-27_IML_2021-016_BRings\wav\' arrID '\'];
+folderIn = ['\\169.254.116.24\usbshare2-2\Bring_Dep_2\' arrID '\']
 %folderIn = ['C:\Users\duquettek\Documents\BRing\Data\wav\' arrID '\'];
 [~, wavi] = getWavName(time, folderIn);
 outName = [arrID '_' wavi.wavID '_' datestr(time,'yyyymmddTHHMMSS') '_rapTech15s'];%'MLB_1493_20210804T005254';
 %folderOut = ['/Users/Administrator/Documents/MPO/BRing/Data/results/' arrID '/' outName '/' ];
-folderOut = ['Z:\DATA\missions\2021-07-27_IML_2021-016_BRings\results\' arrID '\' outName '\'];
+folderOut = ['Z:\DATA\missions\2021-07-27_IML_2021-016_BRings\results\' arrID '\' outName '\caxis3080\'];
 %folderOut = ['C:\Users\duquettek\Documents\BRing\results\' arrID '\' outName '\'];
 %pingFolder = ['/Users/Administrator/Documents/MPO/BRing/Data/results/' arrID '/prcCircle_Ns14_f150-200hz/'];
 %folderIn = ['Z:\DATA\missions\2021-07-27_IML_2021-016_BRings\wav\' arrID '\'];
 
 % Reading parameters
+showFig =2 ;
 imDur = 15;%2^15 %+ (0.4 * 10000);              % Total number of sample
 buffer = 0;             % Time in second to add before the ptime
 
@@ -48,8 +50,8 @@ wav.pa =10^(-convPW.SH/20)*10^(-convPW.G/20)*convPW.D*wav.s;
 
 
 % spectrogram image parameters
-spgm.im.freqlims = [90 220];       % [Hz] frequency scale boundary limits
-spgm.im.clims = [30 90];           % [dB] C limite pcolor
+spgm.im.freqlims = [50 300];       % [Hz] frequency scale boundary limits
+spgm.im.clims = [30 80];           % [dB] C limite pcolor
 spgm.im.dur = imDur;%'all';         % [s or 'all'] figure duration
 %spgm.im.ovlp = 50;                 % [%] image window overlap
 spgm.im.figvision = true ;          % [true false] visiblity of figure before saveas jpf file
@@ -64,6 +66,7 @@ spgm = getSpgmWin(spgm);        % Get spectograme windows parameter
 
 
 %%
+if any(showFig ==1)
 sp.height=30; sp.width=30; sp.nbx=1; sp.nby=2;
 sp.ledge=4; sp.redge=6; sp.tedge=3; sp.bedge=3;
 sp.spacex=0.5; sp.spacey=0.3;
@@ -109,8 +112,9 @@ sp.fracy=[0.1 0.9];
     
     print('-dpng','-r150',[folderOut 'showWavChanelsAmp_' outName '_ch' num2str(i_ch) '.png'])
  end    
-
+end
 %% No amp
+if any(showFig ==2)
 clear ax
 %i_ch = 1;
  for i_ch =1 : size(wav.pa,2)   
@@ -141,10 +145,10 @@ clear ax
     cb.Position(3) = 0.01;
     ylabel(cb,'PSD (dB re. 1µPa2/Hz)')
     
-    print('-dpng','-r150',[folderOut 'showWavChanels_' outName '_ch' num2str(i_ch) '_caxis30-90.png'])
+    print('-dpng','-r150',[folderOut 'showWavChanels_' outName '_ch' num2str(i_ch) '.png'])
  end    
 
-
+end
 %%
 %{
 % Get the spectogram of first chanel
