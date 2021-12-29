@@ -10,14 +10,14 @@ arrID = 'MLB';
 time= datetime(2021,08,04,00,52,46);
 
 %folderIn = ['F:\Bring_Dep_1\' arrID '\']; % Local Mac folder
-%folderIn = ['~/Documents/MPO/BRing/Data/wav/' arrID '/']; % Local Mac folder
+folderIn = ['~/Documents/MPO/BRing/Data/wav/' arrID '/']; % Local Mac folder
 %folderIn = ['Z:\DATA\missions\2021-07-27_IML_2021-016_BRings\wav\' arrID '\'];
-folderIn = ['\\169.254.116.24\usbshare2-2\Bring_Dep_2\' arrID '\']
+%folderIn = ['\\169.254.116.24\usbshare2-2\Bring_Dep_2\' arrID '\']
 %folderIn = ['C:\Users\duquettek\Documents\BRing\Data\wav\' arrID '\'];
 [~, wavi] = getWavName(time, folderIn);
 outName = [arrID '_' wavi.wavID '_' datestr(time,'yyyymmddTHHMMSS') '_rapTech15s'];%'MLB_1493_20210804T005254';
-%folderOut = ['/Users/Administrator/Documents/MPO/BRing/Data/results/' arrID '/' outName '/' ];
-folderOut = ['Z:\DATA\missions\2021-07-27_IML_2021-016_BRings\results\' arrID '\' outName '\caxis3080\'];
+folderOut = ['/Users/Administrator/Documents/MPO/BRing/Data/results/' arrID '/' outName '/' ];
+%folderOut = ['Z:\DATA\missions\2021-07-27_IML_2021-016_BRings\results\' arrID '\' outName '\caxis3080\'];
 %folderOut = ['C:\Users\duquettek\Documents\BRing\results\' arrID '\' outName '\'];
 %pingFolder = ['/Users/Administrator/Documents/MPO/BRing/Data/results/' arrID '/prcCircle_Ns14_f150-200hz/'];
 %folderIn = ['Z:\DATA\missions\2021-07-27_IML_2021-016_BRings\wav\' arrID '\'];
@@ -76,8 +76,8 @@ sp.fracy=[0.1 0.9];
 
 %i_ch = 1;
  for i_ch =1 : size(wav.pa,2) 
-     close all
-     disp(['Printing with amp ' num2str(i_ch) '/' num2str(size(wav.pa,2) ) ])
+    close all
+    disp(['Printing with amp ' num2str(i_ch) '/' num2str(size(wav.pa,2) ) ])
      
     [~,freq1,time1,tmp] = spectrogram(wav.pa(:,i_ch),spgm.win.val,spgm.win.novlp,spgm.win.nfft,spgm.fs);
     Pdb1 = 10*log10(tmp);
@@ -117,7 +117,7 @@ end
 if any(showFig ==2)
 clear ax
 %i_ch = 1;
- for i_ch =1 : size(wav.pa,2)   
+ for i_ch = 1 : size(wav.pa,2)   
      close all
      disp(['Printing no amp ' num2str(i_ch) '/' num2str(size(wav.pa,2) ) ])
      
@@ -136,14 +136,15 @@ clear ax
     %caxis([Lmin Lmax])
     colormap jet
     
-   
+    set(gca,'XAxisLocation','top')
     
     % Colorbar
+    ax(1).Position(1) = 0.1;
     tmppos = ax(1).Position;
     cb = colorbar;
     ax(1).Position = tmppos;
-    cb.Position(3) = 0.01;
-    ylabel(cb,'PSD (dB re. 1µPa2/Hz)')
+    cb.Position(3) = 0.02;
+    ylabel(cb,'PSD (dB re. 1µPa^2/Hz)')
     
     print('-dpng','-r150',[folderOut 'showWavChanels_' outName '_ch' num2str(i_ch) '.png'])
  end    

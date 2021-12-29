@@ -268,7 +268,6 @@ noiseAmp = 0.3;
 
 % Get color order
 colorO = get(gca,'colorOrder');
-clf
 
 % Create the sin matrice
 sin0= zeros(1,length(tt));
@@ -290,6 +289,9 @@ for io=1:length(istart)
 end
 
 
+%% ----------------------------------------------------- 
+% Fig4 : Not Sync Signal
+
 %Subplot parameter
 clear ax
 sp.height=10; sp.width=10; sp.nbx=1; sp.nby=3;
@@ -297,9 +299,6 @@ sp.ledge=0.9; sp.redge=0.2; sp.tedge=0.2; sp.bedge=1.3;
 sp.spacex=0.3; sp.spacey=0.2;
 [sp.pos, mesh2]=subplot2(sp,'meshorder','y');
 fontS = 12;
-
-%% ----------------------------------------------------- 
-% Fig4 : Not Sync Signal
 
 fig = figure(7);
 %colorO = get(gca,'colorOrder');
@@ -334,7 +333,7 @@ ylim([-1.15 1.15])
 box on
 grid on
 
-%ax.GridColor = 'k'
+ax.GridColor = 'k'
 ax.GridAlpha = 0.5 % maximum line opacity
 
 end
@@ -351,7 +350,7 @@ for io=1:length(istart)
     [sx,sy] = find(mesh2'==io);
     ax(io)=axes('position',sp.pos{sx,sy},'FontSize',fontS,'Box','on','Layer','top');
     %plot([0 nbZ], [0 0] ,'-.k')
-    plot(sinR(io,175 :175 + nbZ-1) ,'color',colorO(io+1,:))
+    plot(sinR(io,175 :175 + nbZ-1) ,'color',colorO(io,:))
 
     ax=gca;
     
@@ -362,16 +361,15 @@ for io=1:length(istart)
     else
         ax.XTickLabel = [];
     end
-    if io==2
-    ylabel('Amplitude')
-    end
+    
+    ylabel('Amp.')
     ax.YTick = [-1:1:1];
     ax.YTickLabel = strsplit(num2str([-1:1:1]));
     xlim([0 nbZ])
     ylim([-1.15 1.15])
     box on
     grid on
-    ax.GridAlpha = 0.5 % maximum line opacity
+    
 end
 
 print([folderOut 'fig4_rapTech_theoSignal_Sync.png'],'-dpng','-r150')
@@ -393,16 +391,14 @@ hold off
 ax=gca;
 xlabel('Time')
 ylabel('Amplitude')
-ax.XTick = [0:nbZ/4:nbZ];
-ax.XTickLabel = {'0','1t_0','2t_0','3t_0','4t_0'};
+ax.XTick = [0:nbZ/5:nbZ];
+ax.XTickLabel = {'0','1t_0','2t_0','3t_0','4t_0','5t_0'};
 ax.YTick = [-5:1:5];
 ax.YTickLabel = strsplit(num2str([-5:1:5]));
 xlim([0 nbZ])
 ylim([-3.3 3.3])
 box on
 grid on
-
-ax.GridAlpha = 0.5 % maximum line opacity
 
 print([folderOut 'fig4_rapTech_theoSignal_sumsyn.png'],'-dpng','-r150')
 
@@ -458,29 +454,30 @@ yt = (R-1.5)*cos(theta +  offset * pi /180);
 
 fig = figure(3);
 set(fig, 'PaperPosition', [0 0 10 10]);    % can be bigger than screen
-plot(mean(xc),mean(yc),'k.','markersize',12)
+
+plot(mean(xc),mean(yc),'k.')
 hold on
 plot(arrDiameter*sin(tethaCircle),arrDiameter*cos(tethaCircle),'k')
-plot(xc,yc,'r.','MarkerSize',20)
+plot(xc,yc,'r.','MarkerSize',16)
 for u = 1 : length(arr.xh)
-    text(xt(u)+0.3,yt(u),[ num2str(u)],'fontsize', 18)
+    text(xt(u)+0.3,yt(u),[ num2str(u)])
 end
 
 % Plot time line
 for it=1:4
    t0 = 20 - (10* (it-1))   ;
-   plot([-12.2 12], t0 * [1 1],'--','color',colorO(it,:))
-   text(-12,t0-1,[num2str(it-1) 't_0'],'color',colorO(it,:),'fontsize', 20)
+   plot([-12 12], t0 * [1 1],'--','color',colorO(it,:))
+   text(-11.5,t0-1,[num2str(it-1) 't_0'],'color',colorO(it,:))
 end
 %annotation('textarrow',0.3*[1 1], [0.83 0.2],'String','','FontSize',13,'Linewidth',2)
 %quiver(-12,20,0,-34,1,'k')
-text(-11.2,-13,'t','fontsize',20)
+text(-11,-13,'t','fontsize',14)
 
 xlim([-20 20])
 ylim([-15 25])
 axis square
 
-annotation('textarrow',0.282*[1 1], [0.807 0.17],'String','','FontSize',13,'Linewidth',2)
+annotation('textarrow',0.285*[1 1], [0.807 0.17],'String','','FontSize',13,'Linewidth',2)
 print([folderOut 'fig4_rapTech_goniogram.png'],'-dpng','-r150')
 %%
 

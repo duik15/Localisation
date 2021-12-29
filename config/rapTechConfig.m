@@ -9,7 +9,7 @@ close all
 arrID = 'MLB';
 
 % Selected time
-ptime= datetime(2021,08,04,00,52,46);
+ptime= datetime(2021,08,04,00,52,47);
 %ptime= datetime(2021,08,0,14,32,00);
 %[ptime, ploc]  = getPingInfo(arrID); % Load ping information
 %ptime = ptime + seconds(7);          % Add an offset to be center the 5 upcalls
@@ -19,7 +19,7 @@ ptime= datetime(2021,08,04,00,52,46);
 folderIn = ['~/Documents/MPO/BRing/Data/wav/' arrID '/']; % Local Mac folder
 %folderIn = ['Z:\DATA\missions\2021-07-27_IML_2021-016_BRings\wav\' arrID '\'];
 [~, wavi] = getWavName(ptime, folderIn);
-outName = [arrID '_' wavi.wavID '_' datestr(ptime,'yyyymmddTHHMMSS') '_rappportTech_15sec'];%'MLB_1493_20210804T005254';
+outName = [arrID '_' wavi.wavID '_' datestr(ptime,'yyyymmddTHHMMSS') '_rapTech'];%'MLB_1493_20210804T005254';
 folderOut = ['/Users/Administrator/Documents/MPO/BRing/Data/results/' arrID '/' outName '/' ];
 %folderOut = ['Z:\DATA\missions\2021-07-27_IML_2021-016_BRings\results\' arrID '\' outName '\'];
 %folderOut = ['C:\Users\duquettek\Documents\BRing\results\' arrID '\' outName '\'];
@@ -35,8 +35,8 @@ aziCible =  'max';        % 'max' of value from 0 - 360. The azimut wanted for r
 
 % Reading parameters
 openData = false; % Need to run data or just open it a .mat
-imDur = 15;%2^15 %+ (0.4 * 10000);              % Total number of sample
-buffer = 0;             % Time in second to add before the ptime
+imDur = 2;%2^15 %+ (0.4 * 10000);              % Total number of sample
+buffer = 0.5;             % Time in second to add before the ptime
 
 % Get the real angle and distance from center
 arrLoc = getArrInfo(arrID);
@@ -46,7 +46,7 @@ arrLoc = getArrInfo(arrID);
 if ~isfolder(folderOut); disp(['Creating output folder: ' folderOut]); mkdir(folderOut); end
 %% Spectrogram parameter
 % spectrogram image parameters
-spgm.im.freqlims = [100 200];       % [Hz] frequency scale boundary limits
+spgm.im.freqlims = [75 225];       % [Hz] frequency scale boundary limits
 spgm.im.clims = [30 80];           % [dB] C limite pcolor
 spgm.im.dur = imDur;%'all';         % [s or 'all'] figure duration
 %spgm.im.ovlp = 50;                 % [%] image window overlap
