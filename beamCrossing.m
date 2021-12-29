@@ -22,6 +22,10 @@ mkdir2(folderOut)
 pos1 = getArrInfo(arrID1);
 pos2 = getArrInfo(arrID2);
 
+% Default parameter
+limType = 'fixe';
+inc=2;
+
 %% Varagin
 while ~isempty(varargin)
     switch lower(varargin{1})
@@ -29,6 +33,8 @@ while ~isempty(varargin)
             cellNumber = varargin{2};
         case 'showfig'
             showFig = varargin{2};
+        case 'limtype'
+            limType = varargin{2};
             
         otherwise
             error(['Can''t understand property: ' varargin{1}])
@@ -56,7 +62,7 @@ lat2 = linspace(pos2(1),lat2m,1000);
 loc = [lati, loni];
 
 %% Calcul incertitude zone
-da = [-1 1];
+da = [-inc inc];
 ii=0;
 for i1 = 1:2
     for i2 = 1:2
@@ -90,26 +96,27 @@ londa = londa([1 2 4 3]);
 latda = latda([1 2 4 3]);
 
 %% Find the limit of the zone to plot
-% Zone de la carte
-winSize = 0.3;
 
-if strcmp(arrID1,'PRC') || strcmp(arrID2,'PRC')
-    % Zone de la carte
-    lon_min = -64.4;
-    lon_max = -63.9;
-    lat_min =  48.4;
-    lat_max =  48.7;
-else strcmp(arrID1,'AAV') || strcmp(arrID2,'AAV')
+% Zone de la carte / Limits
+if strcmp(limType , 'fixe')
+    winSize = 0.3;
+    if strcmp(arrID1,'PRC') || strcmp(arrID2,'PRC')
+        % Zone de la carte
+        lon_min = -64.4;
+        lon_max = -63.9;
+        lat_min =  48.4;
+        lat_max =  48.7;
+    else strcmp(arrID1,'AAV') || strcmp(arrID2,'AAV')
+        
+    end
     
+else strcmp(limType,'auto')
+    %lon_min = -max(abs([pos1(:,2) pos2(:,2)])) - winSize;
+    %lon_max = -min(abs([pos1(:,2) pos2(:,2)])) + winSize ;
+    %lat_min =  min([pos1(:,1) pos2(:,1)]) -  winSize/2;
+    %lat_max =  max([pos1(:,1) pos2(:,1)]) + winSize/2;
 end
-%winSize = 0.15;
-%lon_min = -max(abs([pos1(:,2) pos2(:,2)])) - winSize;
-%lon_max = -min(abs([pos1(:,2) pos2(:,2)])) + winSize ;
-%lat_min =  min([pos1(:,1) pos2(:,1)]) -  winSize/2;
-%lat_max =  max([pos1(:,1) pos2(:,1)]) + winSize/2;
 
-%lon_min = -64.3;
-%lon_max = -64;
 %{
     dlon = abs(diff([pos1(2) pos2(2)]));
     dlat = abs(diff([pos1(1) pos2(1)]));
@@ -124,14 +131,14 @@ end
 %% Figure
 %if any(showFig ==1)
     close all
-    disp('Start')
+    disp('Start mapping')
     % Load map
     gsl = load([getDirectory('map') 'GSL_bathy_500m.mat']);
     gebco = load([getDirectory('map') 'gebco_colormap.dat']);
 
     
     % Les isobathes à contourer
-    isobath = [0:10:200];
+    isobath = [0:5:150];
     
     fig = figure('Units', 'normalized', 'Position', [-1,0,0.8,1]);
     set(fig, 'PaperPosition', [0 0 7 7]);    % can be bigger than screen
@@ -139,11 +146,11 @@ end
     m_proj('mercator', 'long',[lon_min lon_max],'lat',[lat_min lat_max]);
     m_grid('fontsize',12,'linestyle','none');
     
-    % Un beau colormap pour la bathymetrie qui vient de GEBCO
-    colormap(gebco);
+   
     
     hold on
     m_contourf(gsl.LON,gsl.LAT,gsl.Z,isobath,'linestyle','none');
+    
     
     % Information graphique
     c = colorbar('location','eastoutside');
@@ -151,8 +158,11 @@ end
     set(c, 'FontSize', 12, 'FontName','times')
     ylabel(c,'Depth(m)')
     
-    xlabel('Longitude', 'FontSize', 12, 'FontName','times')
-    ylabel('Latitude', 'FontSize', 12, 'FontName','times')
+    % Un beau colormap pour la bathymetrie qui vient de GEBCO
+    colormap(gebco);
+    
+    %xlabel('Longitude', 'FontSize', 12, 'FontName','times')
+    %ylabel('Latitude', 'FontSize', 12, 'FontName','times')
     
     m_gshhs_f('patch',[.7 .7 .7]); % coastlines
     
@@ -169,8 +179,8 @@ end
  
    % Cone
    for ii=1:2
-    m_plot(lon1da(ii,:), lat1da(ii,:),'--','color',0.3*[1 1 1])
-    m_plot(lon2da(ii,:), lat2da(ii,:),'--','color',0.3*[1 1 1])
+    hl1= m_plot(lon1da(ii,:), lat1da(ii,:),'-.','color',0.3*[1 1 1],'lineWidth',1.5)
+    hl2= m_plot(lon2da(ii,:), lat2da(ii,:),'-.','color',0.3*[1 1 1],'lineWidth',1.5)
    end
     % Plot incertitude
     %for ii=1:4
@@ -179,11 +189,9 @@ end
     % Plot zone
     m_line([londa londa(1)],[latda latda(1)],'color',[0 0 0])
    % m_patch([londa(1,:) londa(1,:)],[latda(1,:) latda(1,:)],0.3)
-    
-    
-    
+      
     % Plot the retrieve point
-    pp = m_plot(loni,lati,'ko','MarkerFaceColor','r','MarkerSize',7);
+    pp = m_plot(loni,lati,'ko','MarkerFaceColor','k','MarkerSize',5);
     
     %%
     % Legend
@@ -191,5 +199,6 @@ end
     %leg.Position = [49,-64,10,4]
     %leg.Position = [49,5,25,3]
     
+    set(gca,'YMinorTick','on','XMinorTick','on')
     print('-dpng', '-r300',[folderOut 'beamCrossing_' outName '.png']);
 %end
