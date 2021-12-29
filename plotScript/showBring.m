@@ -115,33 +115,35 @@ if any ( showFig == 4 )
     [PdbC, timeC, freqC,reconC] = beamForming(arrID, wav.pa , angleM , spgm,'specmethod','spectro');
     PdbC = squeeze(PdbC);
     
-    disp('Wong time in figure4')
+    %disp('Wong time in figure4')
     %tRecon =1-spgm.fs/2*1/spgm.fs+(0:spgm.ns-1)*1/spgm.fs;
-    t1=floor(spgm.ns/4);
-    tRecon =[time_s(t1:end) time_s(1:t1-1) ];
-    figure(4)
-    ax(1) = subplot(5,1,1);
-    plot(tRecon,reconC,'k')
-    title(['Azimut ' num2str(azimut360(indAziCible)) '°'])
+    %t1=floor(spgm.ns/4);
+    %tRecon =[time_s(t1:end) time_s(1:t1-1) ];
+    %figure(4)
+    %ax(1) = subplot(5,1,1);
+    %plot(tRecon,reconC,'k')
+    %title(['Azimut ' num2str(azimut360(indAziCible)) '°'])
     
-    ax(2) = subplot(5,1,[2:5]);
+    %ax(2) = subplot(5,1,[2:5]);
     pcolor(timeC, freqC,PdbC'); shading flat;
     ylim([spgm.im.freqlims])
     xlabel(' Time (s)')
     ylabel(' Frequency (Hz)')
     caxis(spgm.im.clims)
+    ax=gca;
     
     %caxis([Lmin Lmax])
     colormap jet
     
+    
     % Coordinate axis
-    ax(1).XLim = ax(2).XLim;
+    %ax(1).XLim = ax(2).XLim;
     
     % Colorbar
-    tmppos = ax(2).Position;
+    tmppos = ax.Position;
     cb = colorbar;
-    ax(2).Position = tmppos;
-    ylabel(cb,'Power (dB)')
+    ax.Position = tmppos;
+    ylabel(cb,'PSD (dB re. 1µPa^2/Hz)')
     
     
     
