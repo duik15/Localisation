@@ -1,14 +1,14 @@
 % Load detection excel
 
 % Path and file
-path2File = ['/Users/Administrator/Documents/MPO/BRing/Data/wav/'];         
-file2Load = ['DETECT_NARW_PR.xlsx'];
+path2File = ['/Users/Administrator/Documents/MPO/BRing/Data/detections/'];         
+file2Load = ['BF_PRC_MLB_NARW_PR.xlsx'];
 
 tab = readtable([path2File file2Load],'sheet','MLB');
 nbF =  size(tab,1);
 
-tab.Properties.VariableNames{'FichierPNG'} = 'file';
-tab.Properties.VariableNames{'NARWTime_s_'} = 'time';
+%tab.Properties.VariableNames{'FichierPNG'} = 'file';
+%tab.Properties.VariableNames{'NARWTime_s_'} = 'time';
 
 % Defautl parameter
 formatIn = 'yyyymmddThhMMss';

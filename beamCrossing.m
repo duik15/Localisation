@@ -1,4 +1,4 @@
-%function [loc bc] = beamCrossing(arrID1,arrID2,a1,a2,varargin)
+function [loc dist] = beamCrossing(arrID1,arrID2,a1,a2,varargin)
 % This script make a triangularization of two beam to find back to position
 %[loc] = beamCrossing(pos1,pos2,a1,a2,varargin)
 %https://www.mathworks.com/help/map/ref/polyxpoly.html
@@ -9,12 +9,12 @@
 
 
 %debug:
-arrID1 = 'MLB';
-arrID2 = 'PRC';
-a1=100;
-a2=70;
+%arrID1 = 'MLB';
+%arrID2 = 'PRC';
+%a1=100;
+%a2=70;
 
-showFig = [1];
+showFig = [0];
 folderOut = ['/Users/Administrator/Documents/MPO/BRing/Data/results/honguedo/'];%['Z:\DATA\missions\2021-07-27_IML_2021-016_BRings\results\honguedo\'];
 outName = [arrID1 '_' num2str(a1) 'deg_' arrID2 '_' num2str(a2) 'deg' ];
 mkdir2(folderOut)
@@ -25,6 +25,9 @@ pos2 = getArrInfo(arrID2);
 % Default parameter
 limType = 'fixe';
 inc=2;
+
+% Minimal angle 
+daMin = 3;
 
 %% Varagin
 while ~isempty(varargin)
@@ -45,9 +48,25 @@ end
 
 %% Find angle curve
 
-[lon1m,lat1m, phi1] = m_fdist(pos1(2),pos1(1), a1, 100 *1000);
-[lon2m,lat2m, phi2] = m_fdist(pos2(2),pos2(1), a2, 100 *1000);
+% If too far
+if (a1-a2) <  0
+   dd = abs(a1-a2);
+   a1 = a1 + dd/2 + daMin/2;
+   a2 = a2 - dd/2 - daMin/2;
+end
 
+if abs(a1-a2) < (daMin)
+    a1= a1+1
+    a2= a2-1
+end
+
+if (a1 -90)> 25
+    [lon1m,lat1m, phi1] = m_fdist(pos1(2),pos1(1), a1, 100 *1000);
+    [lon2m,lat2m, phi2] = m_fdist(pos2(2),pos2(1), a2, 100 *1000);
+else
+    [lon1m,lat1m, phi1] = m_fdist(pos1(2),pos1(1), a1, 100 *10000);
+    [lon2m,lat2m, phi2] = m_fdist(pos2(2),pos2(1), a2, 100 *10000);
+end
 lon1m = lon1m - 360;
 lon2m = lon2m -360;
 
@@ -57,19 +76,37 @@ lon2 = linspace(pos2(2),lon2m,1000);
 lat1 = linspace(pos1(1),lat1m,1000);
 lat2 = linspace(pos2(1),lat2m,1000);
 
-[loni,lati] = polyxpoly2(lon1,lat1,lon2,lat2);
+try
+    [loni,lati] = polyxpoly2(lon1,lat1,lon2,lat2);
+    loc = [lati, loni];
+    [dist1,~,~] = m_idist(pos1(2),pos1(1),loc(2),loc(1));
+    [dist2,~,~] = m_idist(pos2(2),pos2(1),loc(2),loc(1));
+    dist = [dist1 dist2];
+catch
+    warning(['Canno''t find location for a1 = ' num2str(a1) ' and a2= ' num2str(a2)])
+    loc = [nan nan];
+    dist = [nan nan];
+end
 
-loc = [lati, loni];
 
+
+
+
+%% Figure
+if any(showFig ==1)
 %% Calcul incertitude zone
 da = [-inc inc];
 ii=0;
 for i1 = 1:2
     for i2 = 1:2
         ii= ii+1;
-        [lon1m,lat1m, phi1] = m_fdist(pos1(2),pos1(1), a1 + da(i1), 100 *1000);
-        [lon2m,lat2m, phi2] = m_fdist(pos2(2),pos2(1), a2 + da(i2), 100 *1000);
-        
+        if (a1 -90)> 25
+            [lon1m,lat1m, phi1] = m_fdist(pos1(2),pos1(1), a1 + da(i1), 100 *1000);
+            [lon2m,lat2m, phi2] = m_fdist(pos2(2),pos2(1), a2 + da(i2), 100 *1000);
+        else
+            [lon1m,lat1m, phi1] = m_fdist(pos1(2),pos1(1), a1 + da(i1), 100 *100000);
+            [lon2m,lat2m, phi2] = m_fdist(pos2(2),pos2(1), a2 + da(i2), 100 *100000);
+        end
         lon1m = lon1m - 360;
         lon2m = lon2m -360;
         
@@ -77,9 +114,9 @@ for i1 = 1:2
         lon22 = linspace(pos2(2),lon2m,1000);
         lat11 = linspace(pos1(1),lat1m,1000);
         lat22 = linspace(pos2(1),lat2m,1000);
-
-        [londa(ii),latda(ii)] = polyxpoly2(lon11,lat11,lon22,lat22);        
         
+        [londa(ii),latda(ii)] = polyxpoly2(lon11,lat11,lon22,lat22);
+
         % SAving value for plot
         if i2==1
             lon1da(i1,:) = lon11; lat1da(i1,:) = lat11;
@@ -128,14 +165,13 @@ end
 %}
 
 
-%% Figure
-%if any(showFig ==1)
+
     close all
     disp('Start mapping')
     % Load map
     gsl = load([getDirectory('map') 'GSL_bathy_500m.mat']);
     gebco = load([getDirectory('map') 'gebco_colormap.dat']);
-
+    
     
     % Les isobathes à contourer
     isobath = [0:5:150];
@@ -146,7 +182,7 @@ end
     m_proj('mercator', 'long',[lon_min lon_max],'lat',[lat_min lat_max]);
     m_grid('fontsize',12,'linestyle','none');
     
-   
+    
     
     hold on
     m_contourf(gsl.LON,gsl.LAT,gsl.Z,isobath,'linestyle','none');
@@ -166,7 +202,7 @@ end
     
     m_gshhs_f('patch',[.7 .7 .7]); % coastlines
     
-
+    
     % Hydrophone location
     % ------------ Plot points ----------------
     hc1 = m_plot(pos1(2),pos1(1),'ro','MarkerFaceColor','r','MarkerSize',7);
@@ -176,20 +212,20 @@ end
     %l1 = m_plot(lon1,lat1,'-.k');
     %l2 = m_plot(lon2,lat2,'-.k');
     
- 
-   % Cone
-   for ii=1:2
-    hl1= m_plot(lon1da(ii,:), lat1da(ii,:),'-.','color',0.3*[1 1 1],'lineWidth',1.5)
-    hl2= m_plot(lon2da(ii,:), lat2da(ii,:),'-.','color',0.3*[1 1 1],'lineWidth',1.5)
-   end
+    
+    % Cone
+    for ii=1:2
+        hl1= m_plot(lon1da(ii,:), lat1da(ii,:),'-.','color',0.3*[1 1 1],'lineWidth',1.5)
+        hl2= m_plot(lon2da(ii,:), lat2da(ii,:),'-.','color',0.3*[1 1 1],'lineWidth',1.5)
+    end
     % Plot incertitude
     %for ii=1:4
     %    pda = m_plot(londa,latda,'ko','MarkerFaceColor','k','MarkerSize',4);
     %end
     % Plot zone
     m_line([londa londa(1)],[latda latda(1)],'color',[0 0 0])
-   % m_patch([londa(1,:) londa(1,:)],[latda(1,:) latda(1,:)],0.3)
-      
+    % m_patch([londa(1,:) londa(1,:)],[latda(1,:) latda(1,:)],0.3)
+    
     % Plot the retrieve point
     pp = m_plot(loni,lati,'ko','MarkerFaceColor','k','MarkerSize',5);
     
@@ -201,4 +237,5 @@ end
     
     set(gca,'YMinorTick','on','XMinorTick','on')
     print('-dpng', '-r300',[folderOut 'beamCrossing_' outName '.png']);
-%end
+end
+end

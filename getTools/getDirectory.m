@@ -39,7 +39,7 @@ switch lower(id)
             case 'mac'
                 dirPath = '/Users/Administrator/Documents/MPO/BRing/Data/wav/';
             case 'labo'
-                dirPath = ['\\169.254.116.24\usbshare2-2\Bring_Dep_1\']
+                dirPath = ['\\169.254.116.24\usbshare2-2\Bring_Dep_1\'];
         end
     case 'cld'
         switch lower(machineID)
@@ -48,7 +48,9 @@ switch lower(id)
             case 'mac'
                 dirPath = '/Users/Administrator/Documents/MPO/BRing/Data/wav/';
             case 'labo'
-                dirPath = ['\\169.254.47.215\usbshare1-2\Bring_Dep_1\']
+                dirPath = ['\\169.254.47.215\usbshare1-2\Bring_Dep_1\'];
+           case 'toaster'
+                dirPath = '/Volumes/BringDD4/Bring_Dep_1/CLD/';
         end
     case 'mlb'
         switch lower(machineID)
@@ -57,7 +59,9 @@ switch lower(id)
             case 'mac'
                 dirPath = '/Users/Administrator/Documents/MPO/BRing/Data/wav/';
             case 'labo'
-                dirPath = ['\\169.254.116.24\usbshare2-2\Bring_Dep_2\']
+                dirPath = ['\\169.254.116.24\usbshare2-2\Bring_Dep_2\'];
+            case 'toaster'
+                dirPath = '/Volumes/BringDD3/Bring_Dep_2/MLB/';
         end
     case 'prc'
         switch lower(machineID)
@@ -66,8 +70,16 @@ switch lower(id)
             case 'mac'
                 dirPath = '/Users/Administrator/Documents/MPO/BRing/Data/wav/';
             case 'labo'
-                dirPath = ['\\169.254.47.215\usbshare1-2\Bring_Dep_2\']
+                dirPath = ['\\169.254.47.215\usbshare1-2\Bring_Dep_2\'];                
         end
+    case 'toasterprc'
+        dirPath = '/Volumes/BringDD4/Bring_Dep_2/PRC/';
+    case 'toastermlb'
+        dirPath = '/Volumes/BringDD3/Bring_Dep_2/MLB/';
+    case 'toastercld'
+        dirPath = '/Volumes/BringDD4/Bring_Dep_1/CLD/';
+    case 'toasteraav'
+        dirPath = '/Volumes/BringDD3/Bring_Dep_1/AAV/';
     case 'map'
         switch lower(machineID)
             case 'dellkev'
