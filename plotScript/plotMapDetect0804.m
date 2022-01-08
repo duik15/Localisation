@@ -234,6 +234,7 @@ ylabel(c,'Depth(m)')
 hc1 = m_plot(pos1(2),pos1(1),'ko','MarkerFaceColor','k','MarkerSize',7);
 hc2 = m_plot(pos2(2),pos2(1),'ko','MarkerFaceColor','k','MarkerSize',7);
 
+%%
 % Plot detection
 for ii=1:nbM
     if ~isnan(locD(ii,1))

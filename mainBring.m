@@ -64,6 +64,7 @@ for ifile=1:length(fileList)
     df = freq(2)-freq(1);
     
     % Create matFFT of each chanel with only freq needed
+    % OPTIMIZE HERE TO DO NOT CALCULATED ALL FFT
     matFFT2 = nan(size(wav.pa));
     for ii = 1:size(wav.pa,2)
         matFFT2(:,ii) = fft(wav.pa(:,ii));

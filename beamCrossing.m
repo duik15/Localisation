@@ -9,10 +9,10 @@ function [loc dist] = beamCrossing(arrID1,arrID2,a1,a2,varargin)
 
 
 %debug:
-%arrID1 = 'MLB';
-%arrID2 = 'PRC';
-%a1=100;
-%a2=70;
+%arrID1 = 'CLD';
+%arrID2 = 'AAV';
+%a1=61;
+%a2=2;
 
 showFig = [0];
 folderOut = ['/Users/Administrator/Documents/MPO/BRing/Data/results/honguedo/'];%['Z:\DATA\missions\2021-07-27_IML_2021-016_BRings\results\honguedo\'];
@@ -28,6 +28,12 @@ inc=2;
 
 % Minimal angle 
 daMin = 3;
+
+if strcmp(arrID1,'PRC') || strcmp(arrID2,'PRC')
+    zone = 'perce';
+elseif strcmp(arrID1,'AAV') || strcmp(arrID2,'AAV')
+    zone = 'honguedo';
+end
 
 %% Varagin
 while ~isempty(varargin)
@@ -60,12 +66,13 @@ if abs(a1-a2) < (daMin)
     a2= a2-1
 end
 
-if (a1 -90)> 25
+
+if abs(a1-a2) > 20
     [lon1m,lat1m, phi1] = m_fdist(pos1(2),pos1(1), a1, 100 *1000);
     [lon2m,lat2m, phi2] = m_fdist(pos2(2),pos2(1), a2, 100 *1000);
 else
-    [lon1m,lat1m, phi1] = m_fdist(pos1(2),pos1(1), a1, 100 *10000);
-    [lon2m,lat2m, phi2] = m_fdist(pos2(2),pos2(1), a2, 100 *10000);
+    [lon1m,lat1m, phi1] = m_fdist(pos1(2),pos1(1), a1, 800 *1000);
+    [lon2m,lat2m, phi2] = m_fdist(pos2(2),pos2(1), a2, 800 *1000);
 end
 lon1m = lon1m - 360;
 lon2m = lon2m -360;
@@ -89,9 +96,6 @@ catch
 end
 
 
-
-
-
 %% Figure
 if any(showFig ==1)
 %% Calcul incertitude zone
@@ -100,13 +104,14 @@ ii=0;
 for i1 = 1:2
     for i2 = 1:2
         ii= ii+1;
-        if (a1 -90)> 25
-            [lon1m,lat1m, phi1] = m_fdist(pos1(2),pos1(1), a1 + da(i1), 100 *1000);
-            [lon2m,lat2m, phi2] = m_fdist(pos2(2),pos2(1), a2 + da(i2), 100 *1000);
+        if abs(a1-a2) > 20
+            [lon1m,lat1m, phi1] = m_fdist(pos1(2),pos1(1), a1 + da(i1), 300 *1000);
+            [lon2m,lat2m, phi2] = m_fdist(pos2(2),pos2(1), a2 + da(i2), 300 *1000);
         else
-            [lon1m,lat1m, phi1] = m_fdist(pos1(2),pos1(1), a1 + da(i1), 100 *100000);
-            [lon2m,lat2m, phi2] = m_fdist(pos2(2),pos2(1), a2 + da(i2), 100 *100000);
+            [lon1m,lat1m, phi1] = m_fdist(pos1(2),pos1(1), a1 + da(i1), 900 *1000);
+            [lon2m,lat2m, phi2] = m_fdist(pos2(2),pos2(1), a2 + da(i2), 900 *1000);
         end
+        
         lon1m = lon1m - 360;
         lon2m = lon2m -360;
         
@@ -115,8 +120,11 @@ for i1 = 1:2
         lat11 = linspace(pos1(1),lat1m,1000);
         lat22 = linspace(pos2(1),lat2m,1000);
         
+        try
         [londa(ii),latda(ii)] = polyxpoly2(lon11,lat11,lon22,lat22);
-
+        catch
+            londa(ii) = nan; latda = nan;
+        end
         % SAving value for plot
         if i2==1
             lon1da(i1,:) = lon11; lat1da(i1,:) = lat11;
@@ -137,34 +145,10 @@ latda = latda([1 2 4 3]);
 % Zone de la carte / Limits
 if strcmp(limType , 'fixe')
     winSize = 0.3;
-    if strcmp(arrID1,'PRC') || strcmp(arrID2,'PRC')
-        % Zone de la carte
-        lon_min = -64.4;
-        lon_max = -63.9;
-        lat_min =  48.4;
-        lat_max =  48.7;
-    else strcmp(arrID1,'AAV') || strcmp(arrID2,'AAV')
-        
-    end
-    
+    mLim = getMapLim(arrID1,dist(1));
 else strcmp(limType,'auto')
-    %lon_min = -max(abs([pos1(:,2) pos2(:,2)])) - winSize;
-    %lon_max = -min(abs([pos1(:,2) pos2(:,2)])) + winSize ;
-    %lat_min =  min([pos1(:,1) pos2(:,1)]) -  winSize/2;
-    %lat_max =  max([pos1(:,1) pos2(:,1)]) + winSize/2;
+
 end
-
-%{
-    dlon = abs(diff([pos1(2) pos2(2)]));
-    dlat = abs(diff([pos1(1) pos2(1)]));
-    dl = max([dlon dlat])
-    lon_min = min([pos1(2) pos2(2)]) - dlon/2;
-    lon_max = max([pos1(2) pos2(2)]) + dlon/2;
-    lat_min = min([pos1(1) pos2(1)]) - dlat/4;
-    lat_max = max([pos1(1) pos2(1)]) + dlat/4;
-%}
-
-
 
     close all
     disp('Start mapping')
@@ -179,7 +163,7 @@ end
     fig = figure('Units', 'normalized', 'Position', [-1,0,0.8,1]);
     set(fig, 'PaperPosition', [0 0 7 7]);    % can be bigger than screen
     
-    m_proj('mercator', 'long',[lon_min lon_max],'lat',[lat_min lat_max]);
+    m_proj('mercator', 'long',[mLim.lonMin mLim.lonMax],'lat',[mLim.latMin mLim.latMax]);
     m_grid('fontsize',12,'linestyle','none');
     
     
@@ -212,11 +196,11 @@ end
     %l1 = m_plot(lon1,lat1,'-.k');
     %l2 = m_plot(lon2,lat2,'-.k');
     
-    
+    %%
     % Cone
     for ii=1:2
-        hl1= m_plot(lon1da(ii,:), lat1da(ii,:),'-.','color',0.3*[1 1 1],'lineWidth',1.5)
-        hl2= m_plot(lon2da(ii,:), lat2da(ii,:),'-.','color',0.3*[1 1 1],'lineWidth',1.5)
+        hl1= m_plot(lon1da(ii,:), lat1da(ii,:),'-.','color',0.3*[1 1 1],'lineWidth',1.5);
+        hl2= m_plot(lon2da(ii,:), lat2da(ii,:),'-.','color',0.3*[1 1 1],'lineWidth',1.5);
     end
     % Plot incertitude
     %for ii=1:4

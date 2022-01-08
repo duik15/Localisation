@@ -119,7 +119,7 @@ if any ( showFig == 4 )
     %tRecon =1-spgm.fs/2*1/spgm.fs+(0:spgm.ns-1)*1/spgm.fs;
     %t1=floor(spgm.ns/4);
     %tRecon =[time_s(t1:end) time_s(1:t1-1) ];
-    %figure(4)
+    figure(4)
     %ax(1) = subplot(5,1,1);
     %plot(tRecon,reconC,'k')
     %title(['Azimut ' num2str(azimut360(indAziCible)) '°'])
