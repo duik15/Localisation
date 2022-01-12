@@ -4,7 +4,7 @@ function [Y,Fs,time,audioInfo] = readBring(fileName, time,  varargin)
 
 % Default parameter
 dura =15;
-buffer = 1;
+buffer = 0;
 power2 = false;
 
 

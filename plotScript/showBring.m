@@ -6,6 +6,7 @@
 % Figure 4: spectrogramme 1 voie
 % Figure 5 :  Spectogram N vois that cover 360deg 1 figure
 % Figure 6 :  Spectogram N vois around azi cible 1 figure
+% Figure 7 :  Compare chanel with beam forming
 
 % ------------------- General Parameter ------------------------------
 % formation de voie
@@ -295,3 +296,75 @@ end
 
 
 % ---------------------------------------------------------------
+
+%  -------------------------------------------------------------------
+% Figure 7 :  Compare Chanel with beam forming
+if any ( showFig == 7)
+    
+    % Set figure parameter
+    clear sp
+    clear ax
+    sp.height=30; sp.width=30; sp.nbx=1; sp.nby=2;
+    sp.ledge=3; sp.redge=3; sp.tedge=2; sp.bedge=2;
+    sp.spacex=0.5; sp.spacey=1.5;
+    sp.pos=subplot2(sp);
+    
+    hID = 1; % Hydrophone to compare with
+    
+    % Get matrice :
+    % Get the spectogram of first chanel
+    [~,freq1,time1,tmp] = spectrogram(wav.pa(:,hID),spgm.win.val,spgm.win.novlp,spgm.win.nfft,spgm.fs);
+    PSD1 = 10*log10(tmp);
+    
+    % Get spectro of cible
+    [psdBF, timeBF, freqBF] = beamForming(arrID, wav.pa , angleM , spgm);
+    psdBF = squeeze(psdBF);
+    
+    close all
+
+    fig = figure(7);
+    
+    for sy=1:2
+        ax(sy)=axes('position',sp.pos{1,sy},'XGrid','off','XMinorGrid','off','FontSize',14,'Box','on','Layer','top');
+        if sy==1
+            pcolor(time1, freq1, PSD1);
+        else
+            pcolor(timeBF, freqBF, psdBF');
+        end
+        shading flat;
+        ylim(spgm.im.freqlims)
+        set(gca,'FontSize',12)
+        colormap jet
+        caxis(spgm.im.clims)
+        
+        % Label
+        ylabel('f (Hz)')
+        
+        if sy==1
+        ax(1).XTickLabel = [];
+        title(['Hydrophone ' num2str(hID)])
+        else
+        xlabel('t (s)')    
+        title(['Beam forming at ' num2str(angleM) '°'])
+        end
+        
+
+        end
+end
+    
+ % Colorbar
+    cbPos = [sp.pos{1,2}(1)+sp.pos{1,2}(3)+0.01 sp.pos{1,2}(2) 0.015 sp.pos{1,2}(4)*2+(sp.spacey/sp.height)];
+    cb = colorbar;
+    cb.Position = cbPos;
+    ax(2).Position = sp.pos{1,2};
+    ylabel(cb,'PSD (dB re. 1µPa^2/Hz)','interpreter','tex')
+    
+    if printFig ==true
+        print([folderOut 'compareChanelVSBF_' outName '_p' num2str(ifile)  '.png'], '-r150','-dpng', '-f7')
+    end
+    
+
+
+
+% ---------------------------------------------------------------
+

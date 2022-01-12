@@ -4,27 +4,32 @@
 clear all
 close all
 
-moreInfo = 'narw0804';
-arrID = {'CLD','AAV'};  
+moreInfo = 'narw_210804T1220_kid';
+arrID = {'MLB','PRC'};
 %dtime = [ datetime(2021,07,15, 09, 52, 27); datetime(2021,07,15, 09, 52, 25)];
-dtime = [ datetime(2021,07,15, 09, 50, 17); datetime(2021,07,15, 09, 50, 15)];
+dtime = [ datetime(2021,08,04, 12, 24, 19,30); datetime(2021,08,04, 12, 24, 25)];
+%dtime2 = [ datetime(2021,08,04, 12, 24, 18,30); datetime(2021,08,04, 12, 24, 24,30)];
 
 % Parameter
-showFig  = [1 2 3];
-imDur = 3;
+showFig  = [2 3];
+imDur = 1.5;
 buffer = 0 ;
 nbD =1;
 
 
 % Path 2 folder
-folderWav = ['~/Documents/MPO/BRing/Data/wav/']; 
+%folderWav = {'E:\Bring_dep_2\','F:\Bring_dep_2\'}; 
+folderWav = {'/Volumes/BringDD3/Bring_Dep_2/','/Volumes/BringDD4/Bring_Dep_2/'}; 
+%folderOut = ['Z:\DATA\missions\2021-07-27_IML_2021-016_BRings\results\perce\']; %spectrogram'];
+%folderWav = {'~/Documents/MPO/BRing/Data/wav/', }; 
 folderOut = ['/Users/Administrator/Documents/MPO/BRing/Data/results/perce/'];
 
+%%
 % Parameter
 % Spectrogram parameter
 % spectrogram image parameters
-spgm.im.freqlims = [0 200];       % [Hz] frequency scale boundary limits
-spgm.im.clims = [30 100];           % [dB] C limite pcolor
+spgm.im.freqlims = [90 210];       % [Hz] frequency scale boundary limits
+spgm.im.clims = [30 80];           % [dB] C limite pcolor
 spgm.im.dur = imDur;%'all';         % [s or 'all'] figure duration
 %spgm.im.ovlp = 50;                 % [%] image window overlap
 spgm.im.figvision = true ;          % [true false] visiblity of figure before saveas jpf file
@@ -41,10 +46,10 @@ convPW.G = 40;
 convPW.D = 1;
 
 spgm(2) = spgm(1);
-% Reading file
+%% Reading file
 
 for ii=1:2
-folderIn = [folderWav arrID{ii} '/'];
+folderIn = [folderWav{ii} arrID{ii} '/'];
 % Get file info
 [fileListt, wavIDt] = getWavName(dtime(ii), folderIn);
 fileList{ii} = fileListt{1}; wavID(ii) = wavIDt;
@@ -61,7 +66,7 @@ end
 % Calculate PSD and beamForming
 for  ii=1:2
 
-folderIn = [folderWav arrID{ii} '/'];
+folderIn = [folderWav{ii} arrID{ii} '/'];
 
 % Calculate PSD
 [~,freqP{ii},timeP{ii},tmp] = spectrogram(wav(ii).pa(:,1),spgm(ii).win.val,spgm(ii).win.novlp,spgm(ii).win.nfft,spgm(ii).fs);
@@ -258,7 +263,7 @@ close all
 kk=1;
 %fig = figure('Units', 'normalized', 'Position', [-1,0,0.8,1]);
 %set(fig, 'PaperPosition', [0 0 7 7]);    % can be bigger than screen
-fig = figure(1);
+fig = figure(2);
 
 for sx=1:2
 ax(kk)=axes('position',sp.pos{sx,1},'XGrid','off','XMinorGrid','off','FontSize',14,'Box','on','Layer','top');
@@ -329,10 +334,10 @@ sp.ledge=4; sp.redge=6; sp.tedge=3; sp.bedge=3;
 sp.spacex=0.1; sp.spacey=0.1;
 sp.pos=subplot2(sp);
 
-    
-    
+        
 % And position of location
-locD = beamCrossing(arrID{1},arrID{2}, aziD(1), aziD(2) ,'showFig', 0);
+[locD distD2]= beamCrossing(arrID{1},arrID{2}, aziD(1), aziD(2) ,'showFig', 0)
+distD = mean(distD2);
 
 % Get position of structure
 pos1 = getArrInfo(arrID{1});
@@ -341,19 +346,15 @@ pos2 = getArrInfo(arrID{2});
 % Zone de la carte
 if strcmp('CLD',arrID{1}) || strcmp('AAV',arrID{1})
 lon_min = -65.5;
-lon_max = -63.5;
+lon_max = -64;
 lat_min =  49;
 lat_max =  50;
-rulerXPos=[-65.3 -64.8];
-rulerYPos = 49.2;
-arrowPos=[-65.3 49.7 1];
 else    
-lon_min = -64.4;
-lon_max = -61;
-lat_min =  47.5;
+    
+lon_min = -64.5;
+lon_max = -63.5;
+lat_min =  48.3;
 lat_max =  48.7;
-
-
 end
 
 disp('Start mapping')
@@ -366,6 +367,7 @@ gebco = load([getDirectory('map') 'gebco_colormap.dat']);
 isobath = [0:10:150];
 
 % Start mapping
+figure(3)
 m_proj('mercator', 'long',[lon_min lon_max],'lat',[lat_min lat_max]);
 m_grid('fontsize',12,'linestyle','none');
 %m_ruler;
@@ -377,13 +379,9 @@ m_gshhs_f('patch',[.7 .7 .7]); % coastlines
 % Un beau colormap pour la bathymetrie qui vient de GEBCO
 colormap(gebco);
 
-% Information graphique
+% Color bar
 cbPos = [sp.pos{1}(1)+sp.pos{1}(3)+0.01 sp.pos{1}(2) 0.015 sp.pos{1}(4)];
 cb2 = colorbar('location','eastoutside');
-%cb2Pos = cb2.Position;
-%cbPos(4) = cb2Pos(4);
-%cb2.Position = cbPos;
-%set(gca,'Position',sp.pos{1})
 set(cb2, 'FontSize', 12, 'FontName','times')
 ylabel(cb2,'Depth(m)')
 

@@ -7,26 +7,28 @@ close all
 moreInfo = 'narw_210804T1220';
 arrID = {'MLB','PRC'};
 %dtime = [ datetime(2021,07,15, 09, 52, 27); datetime(2021,07,15, 09, 52, 25)];
-dtime = [ datetime(2021,08,04, 12, 24, 17,30); datetime(2021,07,15, 12, 24, 24)];
+dtime = [ datetime(2021,08,04, 12, 24, 17,30); datetime(2021,08,04, 12, 24, 23)];
 
 % Parameter
-showFig  = [1 2 3];
-imDur = 3;
+showFig  = [2 3];
+imDur = 4;
 buffer = 0 ;
 nbD =1;
 
 
 % Path 2 folder
-folderWav = {'E:\Bring_dep_2\','F:\Bring_dep_2\'}; 
-folderOut = ['Z:\DATA\missions\2021-07-27_IML_2021-016_BRings\results\perce\']; %spectrogram'];
+%folderWav = {'E:\Bring_dep_2\','F:\Bring_dep_2\'}; 
+folderWav = {'/Volumes/BringDD3/Bring_Dep_2/','/Volumes/BringDD4/Bring_Dep_2/'}; 
+%folderOut = ['Z:\DATA\missions\2021-07-27_IML_2021-016_BRings\results\perce\']; %spectrogram'];
 %folderWav = {'~/Documents/MPO/BRing/Data/wav/', }; 
-%folderOut = ['/Users/Administrator/Documents/MPO/BRing/Data/results/perce/'];
+folderOut = ['/Users/Administrator/Documents/MPO/BRing/Data/results/perce/'];
 
+%%
 % Parameter
 % Spectrogram parameter
 % spectrogram image parameters
-spgm.im.freqlims = [0 200];       % [Hz] frequency scale boundary limits
-spgm.im.clims = [30 100];           % [dB] C limite pcolor
+spgm.im.freqlims = [90 210];       % [Hz] frequency scale boundary limits
+spgm.im.clims = [30 80];           % [dB] C limite pcolor
 spgm.im.dur = imDur;%'all';         % [s or 'all'] figure duration
 %spgm.im.ovlp = 50;                 % [%] image window overlap
 spgm.im.figvision = true ;          % [true false] visiblity of figure before saveas jpf file
@@ -43,10 +45,10 @@ convPW.G = 40;
 convPW.D = 1;
 
 spgm(2) = spgm(1);
-% Reading file
+%% Reading file
 
 for ii=1:2
-folderIn = [folderWav{i} arrID{ii} '/'];
+folderIn = [folderWav{ii} arrID{ii} '/'];
 % Get file info
 [fileListt, wavIDt] = getWavName(dtime(ii), folderIn);
 fileList{ii} = fileListt{1}; wavID(ii) = wavIDt;
@@ -63,7 +65,7 @@ end
 % Calculate PSD and beamForming
 for  ii=1:2
 
-folderIn = [folderWav{i} arrID{ii} '/'];
+folderIn = [folderWav{ii} arrID{ii} '/'];
 
 % Calculate PSD
 [~,freqP{ii},timeP{ii},tmp] = spectrogram(wav(ii).pa(:,1),spgm(ii).win.val,spgm(ii).win.novlp,spgm(ii).win.nfft,spgm(ii).fs);
@@ -77,7 +79,7 @@ PSD{ii} = 10*log10(tmp);
 
 end
 
-aziD = [120 105];
+
 
 %% Show spectrogram
 if any(showFig == 1)
@@ -260,7 +262,7 @@ close all
 kk=1;
 %fig = figure('Units', 'normalized', 'Position', [-1,0,0.8,1]);
 %set(fig, 'PaperPosition', [0 0 7 7]);    % can be bigger than screen
-fig = figure(1);
+fig = figure(2);
 
 for sx=1:2
 ax(kk)=axes('position',sp.pos{sx,1},'XGrid','off','XMinorGrid','off','FontSize',14,'Box','on','Layer','top');
@@ -343,15 +345,15 @@ pos2 = getArrInfo(arrID{2});
 % Zone de la carte
 if strcmp('CLD',arrID{1}) || strcmp('AAV',arrID{1})
 lon_min = -65.5;
-lon_max = -63.5;
+lon_max = -64;
 lat_min =  49;
 lat_max =  50;
 else    
-    %if distD '
+    
 lon_min = -64.5;
-lon_max = -62;
-lat_min =  47.7;
-lat_max =  49;
+lon_max = -63.5;
+lat_min =  48.3;
+lat_max =  48.7;
 end
 
 disp('Start mapping')
@@ -364,6 +366,7 @@ gebco = load([getDirectory('map') 'gebco_colormap.dat']);
 isobath = [0:10:150];
 
 % Start mapping
+figure(3)
 m_proj('mercator', 'long',[lon_min lon_max],'lat',[lat_min lat_max]);
 m_grid('fontsize',12,'linestyle','none');
 %m_ruler;
