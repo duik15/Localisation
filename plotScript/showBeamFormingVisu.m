@@ -1,4 +1,7 @@
-
+% Just a little temporary hack to fix a bug on bfVisu
+try
+spgm.im.ns = spgm.im.n;
+end
 
 % ------ Figure plot --------
 if spgm.im.figvision
@@ -58,7 +61,7 @@ for u = 1 :  length(azimutV)
 end
 
 % Title
-sgtitle([file{ifile} '  |  ' num2str(floor(timeWin(1))) ' s to ' num2str(ceil(timeWin(end))) ' s  |  File ' num2str(j) '/' num2str(spgm.im.n) ] ,'FontSize', sizeFont+4,'interpreter','none')
+sgtitle([fileList{ifile} '  |  ' num2str(floor(timeWin(1))) ' s to ' num2str(ceil(timeWin(end))) ' s  |  File ' num2str(j) '/' num2str(spgm.im.ns) ] ,'FontSize', sizeFont+4,'interpreter','none')
 
 
 % Color bar
@@ -68,5 +71,5 @@ cb.Position = cbPos;
 ax(end).Position = sp.pos{end};
 ylabel(cb,'Power (dB)')
 
-print(fig,'-dpng','-r150',[folderOut 'BF_' file{ifile}(1:end-4) '_s' num2str(floor(timeWin(1))) '_e' num2str(ceil(timeWin(end))) '.png' ])
+print(fig,'-dpng','-r150',[folderOut 'BF_' fileList{ifile}(1:end-4) '_s' num2str(floor(timeWin(1))) '_e' num2str(ceil(timeWin(end))) '.png' ])
 close(fig)

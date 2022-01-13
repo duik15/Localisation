@@ -349,10 +349,8 @@ if any ( showFig == 7)
         end
         
 
-        end
-end
-    
- % Colorbar
+    end
+         % Colorbar
     cbPos = [sp.pos{1,2}(1)+sp.pos{1,2}(3)+0.01 sp.pos{1,2}(2) 0.015 sp.pos{1,2}(4)*2+(sp.spacey/sp.height)];
     cb = colorbar;
     cb.Position = cbPos;
@@ -362,9 +360,10 @@ end
     if printFig ==true
         print([folderOut 'compareChanelVSBF_' outName '_p' num2str(ifile)  '.png'], '-r150','-dpng', '-f7')
     end
+end
     
 
-
+   
 
 % ---------------------------------------------------------------
 

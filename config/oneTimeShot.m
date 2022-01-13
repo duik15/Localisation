@@ -6,23 +6,16 @@ close all
 %addpath(genpath('../'));
 
 % Path information : folderIn = wav folder / folderOut = figure output folder
-arrID = 'AAV';
+arrID = 'MLB';
 
 % Selected time
-ptime= datetime(2021,07,15, 09, 50, 16);
-%[ptime, ploc]  = getPingInfo(arrID); % Load ping information
-%ptime = ptime + seconds(7);          % Add an offset to be center the 5 upcalls
-%ptime = ptime(1);
+ptime= datetime(2021,08,04, 00, 53, 00);
 
-%folderIn = ['F:\Bring_Dep_1\' arrID '\']; % Local Mac folder
+% Path information | You can also add and use fout = getDirectory('fout')
 folderIn = ['~/Documents/MPO/BRing/Data/wav/' arrID '/']; % Local Mac folder
 [~, wavi] = getWavName(ptime, folderIn);
 outName = [arrID '_' wavi.wavID '_' datestr(ptime,'yyyymmddTHHMMSS') ];%'MLB_1493_20210804T005254';
 folderOut = ['/Users/Administrator/Documents/MPO/BRing/Data/results/' arrID '/' outName '/' ];
-%folderOut = ['Z:\DATA\missions\2021-07-27_IML_2021-016_BRings\results\' arrID '\' outName '\'];
-%folderOut = ['C:\Users\duquettek\Documents\BRing\results\' arrID '\' outName '\'];
-%pingFolder = ['/Users/Administrator/Documents/MPO/BRing/Data/results/' arrID '/prcCircle_Ns14_f150-200hz/'];
-%folderIn = ['Z:\DATA\missions\2021-07-27_IML_2021-016_BRings\wav\' arrID '\'];
 
 % Figure parameters
 showFig = [1 2 3 4 5 6];       % Figure number to print
@@ -33,7 +26,7 @@ aziCible =  'max';        % 'max' of value from 0 - 360. The azimut wanted for r
 
 % Reading parameters
 openData = false; % Need to run data or just open it a .mat
-imDur = 3;%2^15 %+ (0.4 * 10000);              % Total number of sample
+imDur = 10;%2^15 %+ (0.4 * 10000);              % Total number of sample
 buffer = 0;             % Time in second to add before the ptime
 
 % Get the real angle and distance from center
@@ -76,18 +69,6 @@ else
     %showAOACircle; 
     
 end
-
-
-% Saving some pameters
-
-% Loading files and time
-% Time must be in datetime format. The file to load will be automatically find
-%ptime = datetime(2021,07,15,00,00,00);
-%ptime = datetime(2021,07,15,00,00,00):seconds(5):datetime(2021,07,15,01,00,00);
-%[ptime, ploc]  = getPingInfo(arrID); % Load ping information
-%ptime = ptime + seconds(7);          % Add an offset to be center the 5 upcalls
-%ptime = ptime(1);
-
 
 
 %% Add some more specified line or figures related to you run

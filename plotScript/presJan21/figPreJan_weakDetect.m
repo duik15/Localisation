@@ -24,7 +24,7 @@ folderOut = ['/Users/Administrator/Documents/MPO/BRing/Data/results/' arrID '/' 
 %folderIn = ['Z:\DATA\missions\2021-07-27_IML_2021-016_BRings\wav\' arrID '\'];
 
 % Figure parameters
-showFig = [7];       % Figure number to print
+showFig = [1];       % Figure number to print
 saveData = false;   % Save result to .mat
 printFig = true;    % Saving figure to a folder
 nbPk = 4 ;          % Nomber of side lobe to keep
