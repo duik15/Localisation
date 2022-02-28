@@ -14,6 +14,9 @@ function [loc dist] = beamCrossing(arrID1,arrID2,a1,a2,varargin)
 %a1=61;
 %a2=2;
 
+%aa1 =  a1
+%aa2 = a2
+
 showFig = [0];
 folderOut = ['/Users/Administrator/Documents/MPO/BRing/Data/results/honguedo/'];%['Z:\DATA\missions\2021-07-27_IML_2021-016_BRings\results\honguedo\'];
 outName = [arrID1 '_' num2str(a1) 'deg_' arrID2 '_' num2str(a2) 'deg' ];
@@ -54,12 +57,19 @@ end
 
 %% Find angle curve
 
+aa1 =  a1
+aa2 = a2
 % If too far
-if (a1-a2) <  0
+(a1-a2) 
+if (a1-a2) <  0 && any(strcmp(arrID1, {'MLB','PRC'}))
+   ok=11
    dd = abs(a1-a2);
    a1 = a1 + dd/2 + daMin/2;
    a2 = a2 - dd/2 - daMin/2;
 end
+
+aa1 =  a1
+aa2 = a2
 
 if abs(a1-a2) < (daMin)
     a1= a1+1
@@ -82,6 +92,8 @@ lon1 = linspace(pos1(2),lon1m,1000);
 lon2 = linspace(pos2(2),lon2m,1000);
 lat1 = linspace(pos1(1),lat1m,1000);
 lat2 = linspace(pos2(1),lat2m,1000);
+
+
 
 try
     [loni,lati] = polyxpoly2(lon1,lat1,lon2,lat2);
@@ -220,6 +232,7 @@ end
     %leg.Position = [49,5,25,3]
     
     set(gca,'YMinorTick','on','XMinorTick','on')
+    disp(['Saving figure to : ' folderOut 'beamCrossing_' outName '.png'])
     print('-dpng', '-r300',[folderOut 'beamCrossing_' outName '.png']);
 end
 end

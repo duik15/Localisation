@@ -10,7 +10,7 @@ aziCible =  'max';        % 'max' of value from 0 - 360. The azimut wanted for r
 % Reading parameters
 openData = false; % Need to run data or just open it a .mat
 imDur = 3;              % Total number of sample
-buffer = 0;             % Time in second to add before the ptime
+buffer = imDur/2;             % Time in second to add before the ptime
 
 % Get the real angle and distance from center
 arrLoc = getArrInfo(arrID);

@@ -6,19 +6,22 @@ close all
 %addpath(genpath('../'));
 
 % Path information : folderIn = wav folder / folderOut = figure output folder
-arrID = 'MLB';
+arrID = 'AAV';
 
 % Selected time
-ptime= datetime(2021,08,04, 00, 53, 00);
+ptime= datetime(2021,07,16, 06,20 , 28 );
+%ptime= datetime(2021,07,14, 06, 19, 04);
 
 % Path information | You can also add and use fout = getDirectory('fout')
-folderIn = ['~/Documents/MPO/BRing/Data/wav/' arrID '/']; % Local Mac folder
+%folderIn = ['~/Documents/MPO/BRing/Data/wav/' arrID '/']; % Local Mac folder
+folderIn = ['/Volumes/BringDD3/Bring_Dep_1/' arrID '/']; % Local Mac folder
 [~, wavi] = getWavName(ptime, folderIn);
 outName = [arrID '_' wavi.wavID '_' datestr(ptime,'yyyymmddTHHMMSS') ];%'MLB_1493_20210804T005254';
+%outName = [arrID '_' wavi.wavID '_mom' ];%'MLB_1493_20210804T005254';
 folderOut = ['/Users/Administrator/Documents/MPO/BRing/Data/results/' arrID '/' outName '/' ];
 
 % Figure parameters
-showFig = [1 2 3 4 5 6];       % Figure number to print
+showFig = [1 2 3 4 5 ];       % Figure number to print
 saveData = false;   % Save result to .mat
 printFig = true;    % Saving figure to a folder
 nbPk = 4 ;          % Nomber of side lobe to keep
@@ -26,8 +29,8 @@ aziCible =  'max';        % 'max' of value from 0 - 360. The azimut wanted for r
 
 % Reading parameters
 openData = false; % Need to run data or just open it a .mat
-imDur = 10;%2^15 %+ (0.4 * 10000);              % Total number of sample
-buffer = 0;             % Time in second to add before the ptime
+imDur = 3;%2^15 %+ (0.4 * 10000);              % Total number of sample
+buffer = imDur/2;             % Time in second to add before the ptime
 
 % Get the real angle and distance from center
 arrLoc = getArrInfo(arrID);
@@ -38,7 +41,7 @@ if ~isfolder(folderOut); disp(['Creating output folder: ' folderOut]); mkdir(fol
 %% Spectrogram parameter
 % spectrogram image parameters
 spgm.im.freqlims = [100 200];       % [Hz] frequency scale boundary limits
-spgm.im.clims = [30 80];           % [dB] C limite pcolor
+spgm.im.clims = [30 60];           % [dB] C limite pcolor
 spgm.im.dur = imDur;%'all';         % [s or 'all'] figure duration
 %spgm.im.ovlp = 50;                 % [%] image window overlap
 spgm.im.figvision = true ;          % [true false] visiblity of figure before saveas jpf file
@@ -69,7 +72,14 @@ else
     %showAOACircle; 
     
 end
+%% 
 
+% Move folder name to add azimut
+if imDur <= 4
+movefile(folderOut,[folderOut(1:end-1) '_' num2str(angleM) 'd'])
+else
+    movefile(folderOut,[folderOut(1:end-1) '_' num2str(imDur) 's'])
+end
 
 %% Add some more specified line or figures related to you run
 % Enjoy!
